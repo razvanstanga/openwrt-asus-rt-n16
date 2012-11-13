@@ -1,0 +1,17 @@
+From: George Kashperko <george@znau.edu.ua>
+
+Fix MIPS BCM47XX link failure when no PCI support is built.
+Signed-off-by: George Kashperko <george@znau.edu.ua>
+---
+ arch/mips/bcm47xx/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
+--- linux-3.3.8.orig/arch/mips/bcm47xx/Kconfig	2012-10-28 12:00:03.431373412 +0200
++++ linux-3.3.8/arch/mips/bcm47xx/Kconfig	2012-10-28 12:00:19.555372309 +0200
+@@ -8,6 +8,7 @@ config BCM47XX_SSB
+ 	select SSB_DRIVER_MIPS
+ 	select SSB_DRIVER_EXTIF
+ 	select SSB_EMBEDDED
++	select SSB_SPROM
+ 	select SSB_B43_PCI_BRIDGE if PCI
+ 	select SSB_PCICORE_HOSTMODE if PCI
+ 	default y
