@@ -69,13 +69,13 @@ ifeq ($(CONFIG_TARGET_ROOTFS_INITRAMFS),y)
 endif
 
 define CompressLzma
-  $(STAGING_DIR_HOST)/bin/lzma e $(1) -lc1 -lp2 -pb2 $(2)
+  $(STAGING_DIR_HOST)/bin/lzma e $(1) -lc1 -lp2 -pb2 $(3) $(2)
 endef
 
 define PatchKernelLzma
 	cp $(KDIR)/vmlinux $(KDIR_TMP)/vmlinux-$(1)
 	$(STAGING_DIR_HOST)/bin/patch-cmdline $(KDIR_TMP)/vmlinux-$(1) "$(strip $(2))"
-	$(call CompressLzma,$(KDIR_TMP)/vmlinux-$(1),$(KDIR_TMP)/vmlinux-$(1).bin.lzma)
+	$(call CompressLzma,$(KDIR_TMP)/vmlinux-$(1),$(KDIR_TMP)/vmlinux-$(1).bin.lzma,$(3))
 endef
 
 define PatchKernelGzip
@@ -91,7 +91,7 @@ define MkuImage
 endef
 
 define MkuImageLzma
-	$(call PatchKernelLzma,$(1),$(2))
+	$(call PatchKernelLzma,$(1),$(2),$(3))
 	$(call MkuImage,lzma,,$(KDIR_TMP)/vmlinux-$(1).bin.lzma,$(KDIR_TMP)/vmlinux-$(1).uImage)
 endef
 
@@ -579,7 +579,7 @@ define Image/Build/CyberTAN
 endef
 
 define Image/Build/Netgear/Build_uImage
-	$(call MkuImageLzma,$(1),$(2) $(3))
+	$(call MkuImageLzma,$(1),$(2) $(3),-d20)
 	-rm -rf $(KDIR)/$(1)
 	mkdir -p $(KDIR)/$(1)/image
 	$(STAGING_DIR_HOST)/bin/wndr3700 \
@@ -681,12 +681,13 @@ endif
 define Image/Build/OpenMesh
 	$(call MkuImageLzma,$(2))
 	-sh $(TOPDIR)/scripts/om-fwupgradecfg-gen.sh \
-		"$(BUILD_DIR)/om2p-fwupgrade.cfg" \
+		"$(4)" \
+		"$(BUILD_DIR)/fwupgrade.cfg-$(4)" \
 		"$(KDIR_TMP)/vmlinux-$(2).uImage" \
 		"$(KDIR)/root.$(1)"
 	-sh $(TOPDIR)/scripts/combined-ext-image.sh \
 		"$(4)" "$(call factoryname,$(1),$(2))" \
-		"$(BUILD_DIR)/om2p-fwupgrade.cfg" "fwupgrade.cfg" \
+		"$(BUILD_DIR)/fwupgrade.cfg-$(4)" "fwupgrade.cfg" \
 		"$(KDIR_TMP)/vmlinux-$(2).uImage" "kernel" \
 		"$(KDIR)/root.$(1)" "rootfs"
 endef
@@ -831,6 +832,7 @@ $(eval $(call SingleProfile,Netgear,$(fs_64k),WNDRMAC,wndrmac,WNDR3700,ttyS0,115
 $(eval $(call SingleProfile,Netgear,$(fs_64k),WNDRMACV2,wndrmacv2,WNDR3700,ttyS0,115200,$$(wndr3700v2_mtdlayout),3701,WNDRMACv2,"",-H 29763654+16+128))
 
 $(eval $(call SingleProfile,OpenMesh,$(fs_squash),OM2P,om2p,,,,OM2P))
+$(eval $(call SingleProfile,OpenMesh,$(fs_squash),MR600,mr600,,,,MR600))
 
 $(eval $(call SingleProfile,PB4X,$(fs_128k),ALL0305,all0305,ALL0305,ttyS0,115200))
 $(eval $(call SingleProfile,PB4X,$(fs_128k),EAP7660D,eap7660d,EAP7660D,ttyS0,115200))
