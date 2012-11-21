@@ -373,9 +373,11 @@ ar8216_mib_capture(struct ar8216_priv *priv)
 	else
 		mib_func = AR8216_REG_MIB_FUNC;
 
+	mutex_lock(&priv->reg_mutex);
 	/* Capture the hardware statistics for all ports */
 	ar8216_rmw(priv, mib_func, AR8216_MIB_FUNC,
 		   (AR8216_MIB_FUNC_CAPTURE << AR8216_MIB_FUNC_S));
+	mutex_unlock(&priv->reg_mutex);
 
 	/* Wait for the capturing to complete. */
 	ret = ar8216_reg_wait(priv, mib_func, AR8216_MIB_BUSY, 0, 10);
@@ -422,6 +424,8 @@ ar8216_mib_fetch_port_stat(struct ar8216_priv *priv, int port, bool flush)
 	unsigned int base;
 	u64 *mib_stats;
 	int i;
+
+	WARN_ON(port >= priv->dev.ports);
 
 	lockdep_assert_held(&priv->mib_lock);
 
@@ -1547,7 +1551,6 @@ ar8216_sw_get_port_mib(struct switch_dev *dev,
 		goto unlock;
 
 	ar8216_mib_fetch_port_stat(priv, port, false);
-	mutex_unlock(&priv->mib_lock);
 
 	len += snprintf(buf + len, sizeof(priv->buf) - len,
 			"Port %d MIB counters\n",
@@ -1709,7 +1712,7 @@ ar8xxx_mib_work_func(struct work_struct *work)
 
 next_port:
 	priv->mib_next_port++;
-	if (priv->mib_next_port > priv->dev.ports)
+	if (priv->mib_next_port >= priv->dev.ports)
 		priv->mib_next_port = 0;
 
 	mutex_unlock(&priv->mib_lock);
