@@ -7,5 +7,7 @@
 # install apps
 ./scripts/feeds install mwan2
 ./scripts/feeds install mwan3
+./scripts/feeds install nano
+./scripts/feeds install mc
 
 cp ./razvi/opkg.conf package/opkg/files/
