@@ -1,10 +1,10 @@
+cp ./razvi/config.rt-n16 ./.config
 cp ./razvi/feeds.conf.default ./
 
 # update and install default stuff
 ./scripts/feeds update packages luci
 ./scripts/feeds install -a -p luci
-# update local repo
-#./scripts/feeds update razvi
+# update mwan
 ./scripts/feeds update mwan
 ./scripts/feeds install -a -p mwan
 
