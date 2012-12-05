@@ -13,3 +13,11 @@ cp ./razvi/feeds.conf.default ./
 ./scripts/feeds install mc
 
 cp ./razvi/opkg.conf package/opkg/files/
+
+# change trx_max_len
+if grep -q "0x920000" ./tools/firmware-utils/src/trx.c; then
+	echo "trx_max_len.patch already applied"
+else
+	echo "trx_max_len.patch not applied, applying now"
+	patch -p1 -i ./razvi/trx_max_len.patch
+fi
