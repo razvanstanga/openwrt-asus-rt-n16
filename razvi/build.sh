@@ -1,4 +1,3 @@
-cp ./razvi/config.rt-n16 ./.config
 cp ./razvi/feeds.conf.default ./
 
 # update and install default stuff
@@ -21,3 +20,5 @@ else
 	echo "trx_max_len.patch not applied, applying now"
 	patch -p1 -i ./razvi/trx_max_len.patch
 fi
+
+cp ./razvi/config.rt-n16 ./.config
