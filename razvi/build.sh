@@ -7,6 +7,10 @@ cp ./razvi/feeds.conf.default ./
 ./scripts/feeds update mwan
 ./scripts/feeds install -a -p mwan
 
+# update wifischedule
+./scripts/feeds update wifischedule
+./scripts/feeds install -a -p wifischedule
+
 # install apps
 ./scripts/feeds install nano
 ./scripts/feeds install mc

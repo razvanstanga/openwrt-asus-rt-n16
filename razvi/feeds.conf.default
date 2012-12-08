@@ -9,3 +9,4 @@ src-svn luci http://svn.luci.subsignal.org/luci/trunk/contrib/package
 #src-svn lxde svn://svn.openwrt.org/openwrt/feeds/lxde
 #src-link custom /usr/src/openwrt/custom-feed
 src-svn mwan svn://213.136.13.52/var/svn/mwan
+src-git wifischedule git://git.razvi.ro/wifischedule.git
