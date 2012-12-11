@@ -119,15 +119,36 @@
  	ieee80211_bss_info_change_notify(sdata, bss_change);
 --- a/net/mac80211/iface.c
 +++ b/net/mac80211/iface.c
-@@ -510,7 +510,6 @@ int ieee80211_do_open(struct wireless_de
+@@ -508,9 +508,9 @@ static void ieee80211_del_virtual_monito
+ int ieee80211_do_open(struct wireless_dev *wdev, bool coming_up)
+ {
  	struct ieee80211_sub_if_data *sdata = IEEE80211_WDEV_TO_SUB_IF(wdev);
++	struct ieee80211_sub_if_data *ap_sdata;
  	struct net_device *dev = wdev->netdev;
  	struct ieee80211_local *local = sdata->local;
 -	struct sta_info *sta;
  	u32 changed = 0;
  	int res;
  	u32 hw_reconf_flags = 0;
-@@ -665,30 +664,8 @@ int ieee80211_do_open(struct wireless_de
+@@ -587,10 +587,14 @@ int ieee80211_do_open(struct wireless_de
+ 	switch (sdata->vif.type) {
+ 	case NL80211_IFTYPE_AP_VLAN:
+ 		/* no need to tell driver, but set carrier */
+-		if (rtnl_dereference(sdata->bss->beacon))
+-			netif_carrier_on(dev);
+-		else
++		if (!rtnl_dereference(sdata->bss->beacon)) {
+ 			netif_carrier_off(dev);
++			break;
++		}
++
++		ap_sdata = get_bss_sdata(sdata);
++		ieee80211_vif_copy_channel(sdata, ap_sdata);
++		netif_carrier_on(dev);
+ 		break;
+ 	case NL80211_IFTYPE_MONITOR:
+ 		if (sdata->u.mntr_flags & MONITOR_FLAG_COOK_FRAMES) {
+@@ -665,30 +669,8 @@ int ieee80211_do_open(struct wireless_de
  
  	set_bit(SDATA_STATE_RUNNING, &sdata->state);
  
@@ -159,7 +180,16 @@
  
  	/*
  	 * set_multicast_list will be invoked by the networking core
-@@ -1072,6 +1049,72 @@ static void ieee80211_if_setup(struct ne
+@@ -844,6 +826,8 @@ static void ieee80211_do_stop(struct iee
+ 	switch (sdata->vif.type) {
+ 	case NL80211_IFTYPE_AP_VLAN:
+ 		list_del(&sdata->u.vlan.list);
++		netif_carrier_off(sdata->dev);
++		ieee80211_vif_release_channel(sdata);
+ 		/* no need to tell driver */
+ 		break;
+ 	case NL80211_IFTYPE_MONITOR:
+@@ -1072,6 +1056,72 @@ static void ieee80211_if_setup(struct ne
  	dev->destructor = free_netdev;
  }
  
@@ -232,7 +262,7 @@
  static void ieee80211_iface_work(struct work_struct *work)
  {
  	struct ieee80211_sub_if_data *sdata =
-@@ -1176,6 +1219,9 @@ static void ieee80211_iface_work(struct 
+@@ -1176,6 +1226,9 @@ static void ieee80211_iface_work(struct 
  				break;
  			ieee80211_mesh_rx_queued_mgmt(sdata, skb);
  			break;
@@ -550,3 +580,249 @@
  	struct ath_rx_stats rxstats;
  	struct ath_dfs_stats dfs_stats;
  	u32 reset[__RESET_TYPE_MAX];
+--- a/drivers/net/wireless/ath/carl9170/rx.c
++++ b/drivers/net/wireless/ath/carl9170/rx.c
+@@ -684,7 +684,7 @@ static int carl9170_handle_mpdu(struct a
+ 	if (!skb)
+ 		return -ENOMEM;
+ 
+-	memcpy(IEEE80211_SKB_RXCB(skb), &status, sizeof(status));
++	memcpy(IEEE80211_SKB_RXCB(skb), status, sizeof(*status));
+ 	ieee80211_rx(ar->hw, skb);
+ 	return 0;
+ }
+--- a/drivers/net/wireless/ath/ath9k/calib.c
++++ b/drivers/net/wireless/ath/ath9k/calib.c
+@@ -69,6 +69,7 @@ s16 ath9k_hw_getchan_noise(struct ath_hw
+ 
+ 	if (chan && chan->noisefloor) {
+ 		s8 delta = chan->noisefloor -
++			   ATH9K_NF_CAL_NOISE_THRESH -
+ 			   ath9k_hw_get_default_nf(ah, chan);
+ 		if (delta > 0)
+ 			noise += delta;
+--- a/drivers/net/wireless/ath/ath9k/calib.h
++++ b/drivers/net/wireless/ath/ath9k/calib.h
+@@ -21,6 +21,9 @@
+ 
+ #define AR_PHY_CCA_FILTERWINDOW_LENGTH          5
+ 
++/* Internal noise floor can vary by about 6db depending on the frequency */
++#define ATH9K_NF_CAL_NOISE_THRESH		6
++
+ #define NUM_NF_READINGS       6
+ #define ATH9K_NF_CAL_HIST_MAX 5
+ 
+--- a/drivers/net/wireless/ath/ath5k/base.c
++++ b/drivers/net/wireless/ath/ath5k/base.c
+@@ -851,7 +851,7 @@ ath5k_txbuf_free_skb(struct ath5k_hw *ah
+ 		return;
+ 	dma_unmap_single(ah->dev, bf->skbaddr, bf->skb->len,
+ 			DMA_TO_DEVICE);
+-	dev_kfree_skb_any(bf->skb);
++	ieee80211_free_txskb(ah->hw, bf->skb);
+ 	bf->skb = NULL;
+ 	bf->skbaddr = 0;
+ 	bf->desc->ds_data = 0;
+@@ -1578,7 +1578,7 @@ ath5k_tx_queue(struct ieee80211_hw *hw, 
+ 	return;
+ 
+ drop_packet:
+-	dev_kfree_skb_any(skb);
++	ieee80211_free_txskb(hw, skb);
+ }
+ 
+ static void
+--- a/drivers/net/wireless/ath/ath5k/mac80211-ops.c
++++ b/drivers/net/wireless/ath/ath5k/mac80211-ops.c
+@@ -65,7 +65,7 @@ ath5k_tx(struct ieee80211_hw *hw, struct
+ 	u16 qnum = skb_get_queue_mapping(skb);
+ 
+ 	if (WARN_ON(qnum >= ah->ah_capabilities.cap_queues.q_tx_num)) {
+-		dev_kfree_skb_any(skb);
++		ieee80211_free_txskb(hw, skb);
+ 		return;
+ 	}
+ 
+--- a/drivers/net/wireless/b43/dma.c
++++ b/drivers/net/wireless/b43/dma.c
+@@ -409,7 +409,10 @@ static inline
+ 				struct b43_dmadesc_meta *meta)
+ {
+ 	if (meta->skb) {
+-		dev_kfree_skb_any(meta->skb);
++		if (ring->tx)
++			ieee80211_free_txskb(ring->dev->wl->hw, meta->skb);
++		else
++			dev_kfree_skb_any(meta->skb);
+ 		meta->skb = NULL;
+ 	}
+ }
+@@ -1454,7 +1457,7 @@ int b43_dma_tx(struct b43_wldev *dev, st
+ 	if (unlikely(err == -ENOKEY)) {
+ 		/* Drop this packet, as we don't have the encryption key
+ 		 * anymore and must not transmit it unencrypted. */
+-		dev_kfree_skb_any(skb);
++		ieee80211_free_txskb(dev->wl->hw, skb);
+ 		err = 0;
+ 		goto out;
+ 	}
+--- a/drivers/net/wireless/b43/main.c
++++ b/drivers/net/wireless/b43/main.c
+@@ -3397,7 +3397,7 @@ static void b43_tx_work(struct work_stru
+ 				break;
+ 			}
+ 			if (unlikely(err))
+-				dev_kfree_skb(skb); /* Drop it */
++				ieee80211_free_txskb(wl->hw, skb);
+ 			err = 0;
+ 		}
+ 
+@@ -3419,7 +3419,7 @@ static void b43_op_tx(struct ieee80211_h
+ 
+ 	if (unlikely(skb->len < 2 + 2 + 6)) {
+ 		/* Too short, this can't be a valid frame. */
+-		dev_kfree_skb_any(skb);
++		ieee80211_free_txskb(hw, skb);
+ 		return;
+ 	}
+ 	B43_WARN_ON(skb_shinfo(skb)->nr_frags);
+@@ -4234,8 +4234,12 @@ redo:
+ 
+ 	/* Drain all TX queues. */
+ 	for (queue_num = 0; queue_num < B43_QOS_QUEUE_NUM; queue_num++) {
+-		while (skb_queue_len(&wl->tx_queue[queue_num]))
+-			dev_kfree_skb(skb_dequeue(&wl->tx_queue[queue_num]));
++		while (skb_queue_len(&wl->tx_queue[queue_num])) {
++			struct sk_buff *skb;
++
++			skb = skb_dequeue(&wl->tx_queue[queue_num]);
++			ieee80211_free_txskb(wl->hw, skb);
++		}
+ 	}
+ 
+ 	b43_mac_suspend(dev);
+--- a/drivers/net/wireless/b43/pio.c
++++ b/drivers/net/wireless/b43/pio.c
+@@ -196,7 +196,7 @@ static void b43_pio_cancel_tx_packets(st
+ 	for (i = 0; i < ARRAY_SIZE(q->packets); i++) {
+ 		pack = &(q->packets[i]);
+ 		if (pack->skb) {
+-			dev_kfree_skb_any(pack->skb);
++			ieee80211_free_txskb(q->dev->wl->hw, pack->skb);
+ 			pack->skb = NULL;
+ 		}
+ 	}
+@@ -552,7 +552,7 @@ int b43_pio_tx(struct b43_wldev *dev, st
+ 	if (unlikely(err == -ENOKEY)) {
+ 		/* Drop this packet, as we don't have the encryption key
+ 		 * anymore and must not transmit it unencrypted. */
+-		dev_kfree_skb_any(skb);
++		ieee80211_free_txskb(dev->wl->hw, skb);
+ 		err = 0;
+ 		goto out;
+ 	}
+--- a/net/mac80211/cfg.c
++++ b/net/mac80211/cfg.c
+@@ -915,6 +915,12 @@ static int ieee80211_start_ap(struct wip
+ 	if (err)
+ 		return err;
+ 
++	list_for_each_entry(vlan, &sdata->u.ap.vlans, u.vlan.list) {
++		err = ieee80211_vif_copy_channel(vlan, sdata);
++		if (err)
++			return err;
++	}
++
+ 	/*
+ 	 * Apply control port protocol, this allows us to
+ 	 * not encrypt dynamic WEP control frames.
+@@ -998,8 +1004,11 @@ static int ieee80211_stop_ap(struct wiph
+ 	old_probe_resp = rtnl_dereference(sdata->u.ap.probe_resp);
+ 
+ 	/* turn off carrier for this interface and dependent VLANs */
+-	list_for_each_entry(vlan, &sdata->u.ap.vlans, u.vlan.list)
++	list_for_each_entry(vlan, &sdata->u.ap.vlans, u.vlan.list) {
++		sta_info_flush(local, vlan);
+ 		netif_carrier_off(vlan->dev);
++		ieee80211_vif_release_channel(vlan);
++	}
+ 	netif_carrier_off(dev);
+ 
+ 	/* remove beacon and probe response */
+--- a/net/mac80211/chan.c
++++ b/net/mac80211/chan.c
+@@ -119,14 +119,17 @@ static int ieee80211_assign_vif_chanctx(
+ 
+ 	lockdep_assert_held(&local->chanctx_mtx);
+ 
+-	ret = drv_assign_vif_chanctx(local, sdata, ctx);
+-	if (ret)
+-		return ret;
++	if (sdata->vif.type != NL80211_IFTYPE_AP_VLAN) {
++		ret = drv_assign_vif_chanctx(local, sdata, ctx);
++		if (ret)
++			return ret;
++	}
+ 
+ 	rcu_assign_pointer(sdata->vif.chanctx_conf, &ctx->conf);
+ 	ctx->refcount++;
+ 
+-	ieee80211_recalc_txpower(sdata);
++	if (sdata->vif.type != NL80211_IFTYPE_AP_VLAN)
++		ieee80211_recalc_txpower(sdata);
+ 
+ 	return 0;
+ }
+@@ -174,7 +177,8 @@ static void ieee80211_unassign_vif_chanc
+ 	ctx->refcount--;
+ 	rcu_assign_pointer(sdata->vif.chanctx_conf, NULL);
+ 
+-	drv_unassign_vif_chanctx(local, sdata, ctx);
++	if (sdata->vif.type != NL80211_IFTYPE_AP_VLAN)
++		drv_unassign_vif_chanctx(local, sdata, ctx);
+ 
+ 	if (ctx->refcount > 0) {
+ 		ieee80211_recalc_chanctx_chantype(sdata->local, ctx);
+@@ -285,6 +289,30 @@ void ieee80211_recalc_smps_chanctx(struc
+ 	drv_change_chanctx(local, chanctx, IEEE80211_CHANCTX_CHANGE_RX_CHAINS);
+ }
+ 
++int ieee80211_vif_copy_channel(struct ieee80211_sub_if_data *sdata,
++			       struct ieee80211_sub_if_data *parent)
++{
++	struct ieee80211_local *local = sdata->local;
++	struct ieee80211_chanctx_conf *conf;
++	struct ieee80211_chanctx *ctx;
++
++	int ret;
++
++	mutex_lock(&local->chanctx_mtx);
++	conf = rcu_dereference_protected(parent->vif.chanctx_conf,
++					 lockdep_is_held(&local->chanctx_mtx));
++	if (!conf) {
++		ret = -ENOENT;
++		goto out;
++	}
++
++	ctx = container_of(conf, struct ieee80211_chanctx, conf);
++	ret = ieee80211_assign_vif_chanctx(sdata, ctx);
++out:
++	mutex_unlock(&local->chanctx_mtx);
++	return ret;
++}
++
+ int ieee80211_vif_use_channel(struct ieee80211_sub_if_data *sdata,
+ 			      const struct cfg80211_chan_def *chandef,
+ 			      enum ieee80211_chanctx_mode mode)
+--- a/net/mac80211/ieee80211_i.h
++++ b/net/mac80211/ieee80211_i.h
+@@ -1633,6 +1633,8 @@ ieee80211_vif_use_channel(struct ieee802
+ 			  const struct cfg80211_chan_def *chandef,
+ 			  enum ieee80211_chanctx_mode mode);
+ void ieee80211_vif_release_channel(struct ieee80211_sub_if_data *sdata);
++int ieee80211_vif_copy_channel(struct ieee80211_sub_if_data *sdata,
++			       struct ieee80211_sub_if_data *parent);
+ 
+ void ieee80211_recalc_smps_chanctx(struct ieee80211_local *local,
+ 				   struct ieee80211_chanctx *chanctx);
