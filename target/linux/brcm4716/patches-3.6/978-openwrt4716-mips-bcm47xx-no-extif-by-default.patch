@@ -1,0 +1,128 @@
+From: George Kashperko <george@znau.edu.ua>
+
+Let bcm47xx get built without EXTIF support.
+Signed-off-by: George Kashperko <george@znau.edu.ua>
+---
+ arch/mips/bcm47xx/Kconfig            |    1 
+ arch/mips/bcm47xx/gpio.c             |    7 ++-
+ drivers/ssb/driver_mipscore.c        |    6 +--
+ include/linux/ssb/ssb_driver_extif.h |   49 +++++++++++++++++++++++++
+ 4 files changed, 56 insertions(+), 7 deletions(-)
+--- linux-3.6.8.orig/arch/mips/bcm47xx/gpio.c	2012-12-08 02:32:27.000000000 +0200
++++ linux-3.6.8/arch/mips/bcm47xx/gpio.c	2012-12-08 02:38:55.675438586 +0200
+@@ -158,10 +158,11 @@ static int bcm47xx_gpio_to_irq(struct gp
+ 	case BCM47XX_BUS_TYPE_SSB:
+ 		if (ssb_chipco_available(&bcm47xx_bus.ssb.chipco))
+ 			return ssb_mips_irq(bcm47xx_bus.ssb.chipco.dev) + 2;
+-		else if (ssb_extif_available(&bcm47xx_bus.ssb.extif))
++#ifdef CONFIG_SSB_DRIVER_EXTIF
++		if (ssb_extif_available(&bcm47xx_bus.ssb.extif))
+ 			return ssb_mips_irq(bcm47xx_bus.ssb.extif.dev) + 2;
+-		else
+-			return -EINVAL;
++#endif
++		return -EINVAL;
+ #endif
+ #ifdef CONFIG_BCM47XX_BCMA
+ 	case BCM47XX_BUS_TYPE_BCMA:
+--- linux-3.6.8.orig/arch/mips/bcm47xx/Kconfig	2012-12-08 02:38:36.979439864 +0200
++++ linux-3.6.8/arch/mips/bcm47xx/Kconfig	2012-12-08 02:38:55.675438586 +0200
+@@ -6,7 +6,6 @@ config BCM47XX_SSB
+ 	select SYS_HAS_CPU_MIPS32_R2
+ 	select SSB
+ 	select SSB_DRIVER_MIPS
+-	select SSB_DRIVER_EXTIF
+ 	select SSB_EMBEDDED
+ 	select SSB_SPROM
+ 	select SSB_B43_PCI_BRIDGE if PCI
+--- linux-3.6.8.orig/drivers/ssb/driver_mipscore.c	2012-12-08 02:32:27.000000000 +0200
++++ linux-3.6.8/drivers/ssb/driver_mipscore.c	2012-12-08 02:38:55.675438586 +0200
+@@ -179,7 +179,7 @@ static void ssb_mips_serial_init(struct 
+ {
+ 	struct ssb_bus *bus = mcore->dev->bus;
+ 
+-	if (bus->extif.dev)
++	if (ssb_extif_available(&bus->extif))
+ 		mcore->nr_serial_ports = ssb_extif_serial_init(&bus->extif, mcore->serial_ports);
+ 	else if (bus->chipco.dev)
+ 		mcore->nr_serial_ports = ssb_chipco_serial_init(&bus->chipco, mcore->serial_ports);
+@@ -248,7 +248,7 @@ u32 ssb_cpu_clock(struct ssb_mipscore *m
+ 	if (bus->chipco.capabilities & SSB_CHIPCO_CAP_PMU)
+ 		return ssb_pmu_get_cpu_clock(&bus->chipco);
+ 
+-	if (bus->extif.dev) {
++	if (ssb_extif_available(&bus->extif)) {
+ 		ssb_extif_get_clockcontrol(&bus->extif, &pll_type, &n, &m);
+ 	} else if (bus->chipco.dev) {
+ 		ssb_chipco_get_clockcpu(&bus->chipco, &pll_type, &n, &m);
+@@ -286,7 +286,7 @@ void ssb_mipscore_init(struct ssb_mipsco
+ 		hz = 100000000;
+ 	ns = 1000000000 / hz;
+ 
+-	if (bus->extif.dev)
++	if (ssb_extif_available(&bus->extif))
+ 		ssb_extif_timing_init(&bus->extif, ns);
+ 	else if (bus->chipco.dev)
+ 		ssb_chipco_timing_init(&bus->chipco, ns);
+--- linux-3.6.8.orig/include/linux/ssb/ssb_driver_extif.h	2012-12-08 02:32:27.000000000 +0200
++++ linux-3.6.8/include/linux/ssb/ssb_driver_extif.h	2012-12-08 02:43:55.650418073 +0200
+@@ -207,10 +207,59 @@ void ssb_extif_get_clockcontrol(struct s
+ }
+ 
+ static inline
++void ssb_extif_timing_init(struct ssb_extif *extif, unsigned long ns)
++{
++}
++
++static inline
+ u32 ssb_extif_watchdog_timer_set(struct ssb_extif *extif, u32 ticks)
+ {
+ 	return 0;
+ }
+ 
++static inline
++u32 ssb_extif_gpio_in(struct ssb_extif *extif, u32 mask)
++{
++	BUG_ON(1);
++	return 0;
++}
++
++static inline
++u32 ssb_extif_gpio_out(struct ssb_extif *extif, u32 mask, u32 value)
++{
++	BUG_ON(1);
++	return 0;
++}
++
++static inline
++u32 ssb_extif_gpio_outen(struct ssb_extif *extif, u32 mask, u32 value)
++{
++	BUG_ON(1);
++	return 0;
++}
++
++static inline
++u32 ssb_extif_gpio_polarity(struct ssb_extif *extif, u32 mask, u32 value)
++{
++	BUG_ON(1);
++	return 0;
++}
++
++static inline
++u32 ssb_extif_gpio_intmask(struct ssb_extif *extif, u32 mask, u32 value)
++{
++	BUG_ON(1);
++	return 0;
++}
++
++static inline
++int ssb_extif_serial_init(struct ssb_extif *extif,
++			  struct ssb_serial_port *ports)
++{
++#ifdef CONFIG_SSB_SERIAL
++	BUG_ON(1);
++	return 0;
++#endif
++}
+ #endif /* CONFIG_SSB_DRIVER_EXTIF */
+ #endif /* LINUX_SSB_EXTIFCORE_H_ */

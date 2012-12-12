@@ -1,0 +1,129 @@
+From: George Kashperko <george@znau.edu.ua>
+
+Add support for 4716/47162 pmu.
+Signed-off-by: George Kashperko <george@znau.edu.ua>
+---
+ drivers/ssb/driver_chipcommon_pmu.c       |   37 +++++++++++++++++++
+ include/linux/ssb/ssb_driver_chipcommon.h |   38 +++++++++++++++++++-
+ 2 files changed, 74 insertions(+), 1 deletion(-)
+--- linux-3.6.8.orig/drivers/ssb/driver_chipcommon_pmu.c	2012-12-08 02:32:27.000000000 +0200
++++ linux-3.6.8/drivers/ssb/driver_chipcommon_pmu.c	2012-12-08 14:13:23.681589326 +0200
+@@ -637,6 +637,10 @@ u32 ssb_pmu_get_alp_clock(struct ssb_chi
+ 	switch (bus->chip_id) {
+ 	case 0x5354:
+-		ssb_pmu_get_alp_clock_clk0(cc);
++		return ssb_pmu_get_alp_clock_clk0(cc);
++	case 0x4716:
++	case 47162:
++		/* always 20Mhz */
++		return 20000 * 1000;
+ 	default:
+ 		ssb_printk(KERN_ERR PFX
+ 			   "ERROR: PMU alp clock unknown for device %04X\n",
+@@ -645,6 +650,32 @@ u32 ssb_pmu_get_alp_clock(struct ssb_chi
+ 	}
+ }
+ 
++static u32
++ssb_pmu5_clock(struct ssb_chipcommon *cc, unsigned int div)
++{
++	u32 pll0 = SSB_PMURES_4716_PLL0;
++	u32 tmp, mdiv, ndiv, p1, p2, fc;
++
++	BUG_ON(div > 3);
++
++	tmp = ssb_chipco_pll_read(cc, pll0 + SSB_PMU5_PLLn_P1P2);
++	p1 = SSB_PMU5_PLLn_P1(tmp);
++	p2 = SSB_PMU5_PLLn_P2(tmp);
++
++	tmp = ssb_chipco_pll_read(cc, pll0 + SSB_PMU5_PLLn_M14);
++	mdiv = SSB_PMU5_PLLn_MDIV(tmp, div);
++
++	tmp = ssb_chipco_pll_read(cc, pll0 + SSB_PMU5_PLLn_NM5);
++	ndiv = SSB_PMU5_PLLn_NDIV(tmp);
++
++	/* Do calculation in Mhz */
++	fc = ssb_pmu_get_alp_clock(cc) / 1000000;
++	fc = (p1 * ndiv * fc) / p2;
++
++	/* Return clock in Hertz */
++	return (fc / mdiv) * 1000000;
++}
++
+ u32 ssb_pmu_get_cpu_clock(struct ssb_chipcommon *cc)
+ {
+ 	struct ssb_bus *bus = cc->dev->bus;
+@@ -653,6 +684,9 @@ u32 ssb_pmu_get_cpu_clock(struct ssb_chi
+ 	case 0x5354:
+ 		/* 5354 chip uses a non programmable PLL of frequency 240MHz */
+ 		return 240000000;
++	case 0x4716:
++	case 47162:
++		return ssb_pmu5_clock(cc, SSB_PMU5_PLLn_MDIV_CPU);
+ 	default:
+ 		ssb_printk(KERN_ERR PFX
+ 			   "ERROR: PMU cpu clock unknown for device %04X\n",
+@@ -668,6 +702,9 @@ u32 ssb_pmu_get_controlclock(struct ssb_
+ 	switch (bus->chip_id) {
+ 	case 0x5354:
+ 		return 120000000;
++	case 0x4716:
++	case 47162:
++		return ssb_pmu5_clock(cc, SSB_PMU5_PLLn_MDIV_BUS);
+ 	default:
+ 		ssb_printk(KERN_ERR PFX
+ 			   "ERROR: PMU controlclock unknown for device %04X\n",
+--- linux-3.6.8.orig/include/linux/ssb/ssb_driver_chipcommon.h	2012-12-08 02:59:52.260352660 +0200
++++ linux-3.6.8/include/linux/ssb/ssb_driver_chipcommon.h	2012-12-08 14:12:05.045594705 +0200
+@@ -326,6 +326,43 @@
+ #define  SSB_PMU1_PLLCTL5_CLKDRV		0xFFFFFF00 /* clk drv */
+ #define  SSB_PMU1_PLLCTL5_CLKDRV_SHIFT		8
+ 
++/* PMU rev 5 PLL registers. */
++#define  SSB_PMU5_PLLn_P1P2			0
++#define   SSB_PMU5_PLLn_P1_MASK			0x0F000000
++#define   SSB_PMU5_PLLn_P1_SHIFT		24
++#define   SSB_PMU5_PLLn_P1(p1p2) \
++	(((p1p2) & SSB_PMU5_PLLn_P1_MASK) >> SSB_PMU5_PLLn_P1_SHIFT)
++#define   SSB_PMU5_PLLn_P2_MASK			0x00F00000
++#define   SSB_PMU5_PLLn_P2_SHIFT		20
++#define    SSB_PMU5_PLLn_P2(p1p2) \
++	(((p1p2) & SSB_PMU5_PLLn_P2_MASK) >> SSB_PMU5_PLLn_P2_SHIFT)
++#define  SSB_PMU5_PLLn_M14			1
++#define   SSB_PMU5_PLLn_MDIV_MASK		0x000000FF
++#define   SSB_PMU5_PLLn_MDIV_CPU		1
++#define   SSB_PMU5_PLLn_MDIV_MEM		2
++#define   SSB_PMU5_PLLn_MDIV_BUS		3
++#define    SSB_PMU5_PLLn_MDIV(m14, div) \
++	(((m14) >> ((div) * 8)) & SSB_PMU5_PLLn_MDIV_MASK)
++#define  SSB_PMU5_PLLn_NM5			2
++#define   SSB_PMU5_PLLn_NDIV_MASK		0xFFF00000
++#define   SSB_PMU5_PLLn_NDIV_SHIFT		20
++#define    SSB_PMU5_PLLn_NDIV(nm5) \
++	(((nm5) & SSB_PMU5_PLLn_NDIV_MASK) >> SSB_PMU5_PLLn_NDIV_SHIFT)
++#define   SSB_PMU5_PLLn_NDIV_MODE_MASK		0x000E0000
++#define   SSB_PMU5_PLLn_NDIV_MODE_SHIFT		17
++#define  SSB_PMU5_PLLn_FMAB			3
++#define   SSB_PMU5_PLLn_MRATIO_MASK		0xF0000000
++#define   SSB_PMU5_PLLn_MRATIO_SHIFT		28
++#define   SSB_PMU5_PLLn_ABRATIO_MASK		0x08000000
++#define   SSB_PMU5_PLLn_ABRATIO_SHIFT		27
++#define   SSB_PMU5_PLLn_FDIV_MASK		0x07FFFFFF
++#define  SSB_PMU5_PLLn_PLLCTL			4
++#define  SSB_PMU5_PLLn_PCHI			5
++#define  SSB_PMU5_PLLn_PCHI_MASK		0x0000003F
++
++/* BCM4716 PLL resource numbers */
++#define SSB_PMURES_4716_PLL0			12
++
+ /* BCM4312 PLL resource numbers. */
+ #define SSB_PMURES_4312_SWITCHER_BURST		0
+ #define SSB_PMURES_4312_SWITCHER_PWM    	1
+@@ -412,7 +449,6 @@
+ #define SSB_PMURES_5354_BB_PLL_PU		19
+ 
+ 
+-
+ /** Chip specific Chip-Status register contents. */
+ #define SSB_CHIPCO_CHST_4322_SPROM_EXISTS	0x00000040 /* SPROM present */
+ #define SSB_CHIPCO_CHST_4325_SPROM_OTP_SEL	0x00000003

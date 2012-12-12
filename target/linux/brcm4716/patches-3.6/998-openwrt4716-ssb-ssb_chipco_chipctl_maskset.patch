@@ -1,0 +1,54 @@
+From: George Kashperko <george@znau.edu.ua>
+
+Chip control register helper for use in bgmac for 47162 clock setup.
+Might gmac could work without this but I lack hardware to test it out.
+Signed-off-by: George Kashperko <george@znau.edu.ua>
+---
+ drivers/ssb/driver_chipcommon_pmu.c       |   16 ++++++++++++++++
+ include/linux/ssb/ssb_driver_chipcommon.h |    4 ++++
+ 2 files changed, 20 insertions(+)
+--- linux-3.6.8.orig/drivers/ssb/driver_chipcommon_pmu.c	2012-12-08 14:23:47.220546690 +0200
++++ linux-3.6.8/drivers/ssb/driver_chipcommon_pmu.c	2012-12-08 14:25:22.557540169 +0200
+@@ -32,6 +32,22 @@ static void ssb_chipco_pll_write(struct 
+ 	chipco_write32(cc, SSB_CHIPCO_PLLCTL_DATA, value);
+ }
+ 
++void ssb_chipco_chipctl_maskset(struct ssb_chipcommon *cc,
++				u32 offset, u32 mask, u32 set)
++{
++	u32 tmp;
++
++	chipco_read32(cc, SSB_CHIPCO_CHIPCTL_ADDR);
++	chipco_write32(cc, SSB_CHIPCO_CHIPCTL_ADDR, offset);
++	chipco_read32(cc, SSB_CHIPCO_CHIPCTL_ADDR);
++	tmp = chipco_read32(cc, SSB_CHIPCO_CHIPCTL_DATA);
++	tmp &= mask;
++	tmp |= set;
++	chipco_write32(cc, SSB_CHIPCO_CHIPCTL_DATA, tmp);
++	chipco_read32(cc, SSB_CHIPCO_CHIPCTL_DATA);
++}
++EXPORT_SYMBOL(ssb_chipco_chipctl_maskset);
++
+ static void ssb_chipco_regctl_maskset(struct ssb_chipcommon *cc,
+ 				   u32 offset, u32 mask, u32 set)
+ {
+--- linux-3.6.8.orig/include/linux/ssb/ssb_driver_chipcommon.h	2012-12-08 14:23:47.221546690 +0200
++++ linux-3.6.8/include/linux/ssb/ssb_driver_chipcommon.h	2012-12-08 14:25:22.558540170 +0200
+@@ -268,6 +268,8 @@
+ #define SSB_CHIPCO_PMU_RES_REQM			0x0648 /* PMU res req mask */
+ #define SSB_CHIPCO_CHIPCTL_ADDR			0x0650
+ #define SSB_CHIPCO_CHIPCTL_DATA			0x0654
++#define  SSB_CHIPCO_CHIPCTL_CC1			1
++#define  SSB_CHIPCO_CHIPCTL_CC1_RXC_DLL_BYPASS	0x00010000
+ #define SSB_CHIPCO_REGCTL_ADDR			0x0658
+ #define SSB_CHIPCO_REGCTL_DATA			0x065C
+ #define SSB_CHIPCO_PLLCTL_ADDR			0x0660
+@@ -689,6 +691,8 @@ extern void ssb_chipco_get_clockcontrol(
+ 					u32 *plltype, u32 *n, u32 *m);
+ extern void ssb_chipco_timing_init(struct ssb_chipcommon *cc,
+ 				   unsigned long ns_per_cycle);
++extern void ssb_chipco_chipctl_maskset(struct ssb_chipcommon *cc,
++				       u32 offset, u32 mask, u32 set);
+ 
+ enum ssb_clkmode {
+ 	SSB_CLKMODE_SLOW,

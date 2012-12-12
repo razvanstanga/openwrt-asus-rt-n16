@@ -90,7 +90,7 @@ $(eval $(call KernelPackage,usb-uhci,1))
 
 define KernelPackage/usb-ohci
   TITLE:=Support for OHCI controllers
-  DEPENDS:=+TARGET_brcm47xx:kmod-usb-brcm47xx
+  DEPENDS:=+TARGET_brcm47xx:kmod-usb-brcm47xx +TARGET_brcm4716:kmod-usb-brcm4716
   KCONFIG:= \
 	CONFIG_USB_OHCI \
 	CONFIG_USB_OHCI_HCD \
@@ -113,7 +113,7 @@ $(eval $(call KernelPackage,usb-ohci,1))
 
 define KernelPackage/usb2
   TITLE:=Support for USB2 controllers
-  DEPENDS:=+TARGET_brcm47xx:kmod-usb-brcm47xx
+  DEPENDS:=+TARGET_brcm47xx:kmod-usb-brcm47xx +TARGET_brcm4716:kmod-usb-brcm4716
   KCONFIG:=CONFIG_USB_EHCI_HCD \
 	CONFIG_USB_EHCI_ATH79=y \
 	CONFIG_USB_EHCI_BCM63XX=y \

@@ -1,0 +1,35 @@
+From: George Kashperko <george@znau.edu.ua>
+
+SB- and AI-style buses read irq flags from different locations.
+SB-ones read them from TPSFLAG whereas AI-ones from core oob register.
+In order to support both SB- and AI-style buses transparently
+irq flag accessor is implemented as ssb mipscore op.
+Signed-off-by: George Kashperko <george@znau.edu.ua>
+---
+ drivers/ssb/driver_mipscore.c       |    5 +++++
+ include/linux/ssb/ssb_driver_mips.h |    1 +
+ 2 files changed, 6 insertions(+)
+--- linux-3.3.8.orig/drivers/ssb/driver_mipscore.c	2012-10-28 12:03:39.908358609 +0200
++++ linux-3.3.8/drivers/ssb/driver_mipscore.c	2012-10-28 12:05:19.135351822 +0200
+@@ -50,6 +50,11 @@ static const u32 ipsflag_irq_shift[] = {
+ 
+ static inline u32 ssb_irqflag(struct ssb_device *dev)
+ {
++	return dev->bus->mipscore.irqflag(dev);
++}
++
++u32 ssb_irqflag_sb(struct ssb_device *dev)
++{
+ 	u32 tpsflag = ssb_read32(dev, SSB_TPSFLAG);
+ 	if (tpsflag)
+ 		return ssb_read32(dev, SSB_TPSFLAG) & SSB_TPSFLAG_BPFLAG;
+--- linux-3.3.8.orig/include/linux/ssb/ssb_driver_mips.h	2012-10-28 11:52:29.000000000 +0200
++++ linux-3.3.8/include/linux/ssb/ssb_driver_mips.h	2012-10-28 12:05:41.719350279 +0200
+@@ -27,6 +27,7 @@ struct ssb_mipscore {
+ 	struct ssb_serial_port serial_ports[4];
+ 
+ 	struct ssb_pflash pflash;
++	u32 (*irqflag)(struct ssb_device *dev);
+ };
+ 
+ extern void ssb_mipscore_init(struct ssb_mipscore *mcore);
