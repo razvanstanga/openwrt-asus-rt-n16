@@ -146,9 +146,9 @@ Date:   Wed Nov 21 10:27:19 2012 +0000
  
  	cp_reset_hw(cp);
  
-@@ -979,17 +1017,6 @@ static void cp_init_hw (struct cp_privat
- 	cpw32_f (MAC0 + 0, le32_to_cpu (*(__le32 *) (dev->dev_addr + 0)));
- 	cpw32_f (MAC0 + 4, le32_to_cpu (*(__le32 *) (dev->dev_addr + 4)));
+@@ -992,17 +1030,6 @@ static void cp_init_hw (struct cp_privat
+ 
+ 	cpw8(Config5, cpr8(Config5) & PMEStatus);
  
 -	cpw32_f(HiTxRingAddr, 0);
 -	cpw32_f(HiTxRingAddr + 4, 0);
@@ -161,9 +161,9 @@ Date:   Wed Nov 21 10:27:19 2012 +0000
 -	cpw32_f(TxRingAddr, ring_dma & 0xffffffff);
 -	cpw32_f(TxRingAddr + 4, (ring_dma >> 16) >> 16);
 -
- 	cp_start_hw(cp);
- 	cpw8(TxThresh, 0x06); /* XXX convert magic num to a constant */
+ 	cpw16(MultiIntr, 0);
  
+ 	cpw8_f(Cfg9346, Cfg9346_Lock);
 @@ -1192,6 +1219,7 @@ static void cp_tx_timeout(struct net_dev
  	cp_clean_rings(cp);
  	rc = cp_init_rings(cp);
