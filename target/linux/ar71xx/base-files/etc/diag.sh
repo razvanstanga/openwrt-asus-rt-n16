@@ -36,8 +36,12 @@ get_status_led() {
 	all0305)
 		status_led="eap7660d:green:ds4"
 		;;
-	ap136)
+	ap136-010|\
+	ap136-020)
 		status_led="ap136:green:status"
+		;;
+	ap135-020)
+		status_led="ap135:green:status"
 		;;
 	ap81)
 		status_led="ap81:green:status"
@@ -126,6 +130,7 @@ get_status_led() {
 		status_led="tp-link:green:wps"
 		;;
 	tl-mr3220 | \
+	tl-mr3220-v2 | \
 	tl-mr3420 | \
 	tl-wa901nd | \
 	tl-wa901nd-v2 | \

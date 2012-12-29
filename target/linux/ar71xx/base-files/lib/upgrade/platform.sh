@@ -88,7 +88,9 @@ platform_check_image() {
 	ap113 | \
 	ap121 | \
 	ap121-mini | \
-	ap136 | \
+	ap136-010 | \
+	ap136-020 | \
+	ap135-020 | \
 	ap96 | \
 	db120 | \
 	hornet-ub | \
@@ -151,6 +153,7 @@ platform_check_image() {
 	tl-mr3020 | \
 	tl-mr3040 | \
 	tl-mr3220 | \
+	tl-mr3220-v2 | \
 	tl-mr3420 | \
 	tl-wa7510n | \
 	tl-wa901nd | \
