@@ -14,6 +14,9 @@ cp ./razvi/feeds.conf.default ./
 # install apps
 ./scripts/feeds install nano
 ./scripts/feeds install mc
+./scripts/feeds install mtr
+./scripts/feeds install wide-dhcpv6-server
+./scripts/feeds install wide-dhcpv6-client
 
 cp ./razvi/opkg.conf package/opkg/files/
 
