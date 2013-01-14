@@ -1,8 +1,18 @@
 cp ./razvi/feeds.conf.default ./
 
-# update and install default stuff
-./scripts/feeds update packages luci
+# update packages
+./scripts/feeds update packages
+./scripts/feeds install nano
+./scripts/feeds install mc
+./scripts/feeds install mtr
+./scripts/feeds install wide-dhcpv6-server
+./scripts/feeds install wide-dhcpv6-client
+./scripts/feeds install exfat
+
+# update luci
+./scripts/feeds update luci
 ./scripts/feeds install -a -p luci
+
 # update mwan
 ./scripts/feeds update mwan
 ./scripts/feeds install -a -p mwan
@@ -10,13 +20,6 @@ cp ./razvi/feeds.conf.default ./
 # update wifischedule
 ./scripts/feeds update wifischedule
 ./scripts/feeds install -a -p wifischedule
-
-# install apps
-./scripts/feeds install nano
-./scripts/feeds install mc
-./scripts/feeds install mtr
-./scripts/feeds install wide-dhcpv6-server
-./scripts/feeds install wide-dhcpv6-client
 
 cp ./razvi/opkg.conf package/opkg/files/
 
