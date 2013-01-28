@@ -52,6 +52,7 @@ case "$FIRMWARE" in
 		;;
 
 	3g-6200n | \
+	3g300m | \
 	air3gii | \
 	all0239-3g | \
 	all0256n | \
@@ -59,6 +60,7 @@ case "$FIRMWARE" in
 	argus-atp52b | \
 	bc2 | \
 	broadway | \
+	br6524n | \
 	carambola | \
 	dir-615-h1 | \
 	dir-620-a1 | \

@@ -1,6 +1,6 @@
 --- a/include/linux/bcma/bcma_driver_mips.h
 +++ b/include/linux/bcma/bcma_driver_mips.h
-@@ -49,6 +49,6 @@ static inline void bcma_core_mips_early_
+@@ -48,6 +48,6 @@ static inline void bcma_core_mips_early_
  
  extern u32 bcma_cpu_clock(struct bcma_drv_mips *mcore);
  
@@ -10,7 +10,7 @@
  #endif /* LINUX_BCMA_DRIVER_MIPS_H_ */
 --- a/drivers/bcma/driver_chipcommon.c
 +++ b/drivers/bcma/driver_chipcommon.c
-@@ -258,7 +258,7 @@ void bcma_chipco_serial_init(struct bcma
+@@ -329,7 +329,7 @@ void bcma_chipco_serial_init(struct bcma
  		return;
  	}
  
@@ -21,29 +21,39 @@
  	cc->nr_serial_ports = (cc->capabilities & BCMA_CC_CAP_NRUART);
 --- a/drivers/bcma/driver_mips.c
 +++ b/drivers/bcma/driver_mips.c
-@@ -81,7 +81,7 @@ static u32 bcma_core_mips_irqflag(struct
- /* Get the MIPS IRQ assignment for a specified device.
-  * If unassigned, 0 is returned.
+@@ -86,7 +86,7 @@ static u32 bcma_core_mips_irqflag(struct
+  * If disabled, 5 is returned.
+  * If not supported, 6 is returned.
   */
 -unsigned int bcma_core_mips_irq(struct bcma_device *dev)
 +static unsigned int bcma_core_mips_irq(struct bcma_device *dev)
  {
  	struct bcma_device *mdev = dev->bus->drv_mips.core;
  	u32 irqflag;
-@@ -96,7 +96,12 @@ unsigned int bcma_core_mips_irq(struct b
+@@ -103,7 +103,13 @@ unsigned int bcma_core_mips_irq(struct b
  
- 	return 0;
+ 	return 5;
  }
 -EXPORT_SYMBOL(bcma_core_mips_irq);
 +
 +unsigned int bcma_core_irq(struct bcma_device *dev)
 +{
-+	return bcma_core_mips_irq(dev) + 2;
++	unsigned int mips_irq = bcma_core_mips_irq(dev);
++	return mips_irq <= 4 ? mips_irq + 2 : 0;
 +}
 +EXPORT_SYMBOL(bcma_core_irq);
  
  static void bcma_core_mips_set_irq(struct bcma_device *dev, unsigned int irq)
  {
+@@ -316,7 +322,7 @@ void bcma_core_mips_init(struct bcma_drv
+ 		break;
+ 	default:
+ 		list_for_each_entry(core, &bus->cores, list) {
+-			core->irq = bcma_core_mips_irq(core) + 2;
++			core->irq = bcma_core_irq(core);
+ 		}
+ 		bcma_err(bus,
+ 			 "Unknown device (0x%x) found, can not configure IRQs\n",
 --- a/drivers/bcma/driver_pci_host.c
 +++ b/drivers/bcma/driver_pci_host.c
 @@ -577,7 +577,7 @@ int bcma_core_pci_plat_dev_init(struct p
@@ -63,17 +73,6 @@
 +	return bcma_core_irq(pc_host->pdev->core);
  }
  EXPORT_SYMBOL(bcma_core_pci_pcibios_map_irq);
---- a/arch/mips/bcm47xx/gpio.c
-+++ b/arch/mips/bcm47xx/gpio.c
-@@ -94,7 +94,7 @@ int gpio_to_irq(unsigned gpio)
- #endif
- #ifdef CONFIG_BCM47XX_BCMA
- 	case BCM47XX_BUS_TYPE_BCMA:
--		return bcma_core_mips_irq(bcm47xx_bus.bcma.bus.drv_cc.core) + 2;
-+		return bcma_core_irq(bcm47xx_bus.bcma.bus.drv_cc.core);
- #endif
- 	}
- 	return -EINVAL;
 --- a/arch/mips/bcm47xx/serial.c
 +++ b/arch/mips/bcm47xx/serial.c
 @@ -62,7 +62,7 @@ static int __init uart8250_init_bcma(voi

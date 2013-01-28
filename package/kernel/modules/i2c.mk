@@ -27,7 +27,6 @@ I2C_CORE_MODULES:= \
 define KernelPackage/i2c-core
   $(call i2c_defaults,$(I2C_CORE_MODULES),51)
   TITLE:=I2C support
-  DEPENDS:=@!TARGET_etrax
 endef
 
 define KernelPackage/i2c-core/description
@@ -108,7 +107,7 @@ OF_I2C_MODULES:=\
 define KernelPackage/of-i2c
   $(call i2c_defaults,$(OF_I2C_MODULES),58)
   TITLE:=OpenFirmware I2C accessors
-  DEPENDS:=@TARGET_ppc40x||TARGET_ppc4xx||TARGET_mpc52xx||TARGET_mpc83xx||TARGET_mpc85xx \
+  DEPENDS:=@TARGET_ppc40x||TARGET_ppc4xx||TARGET_mpc52xx||TARGET_mpc83xx||TARGET_mpc85xx||TARGET_mvebu \
           kmod-i2c-core
 endef
 
@@ -155,11 +154,12 @@ I2C_MV64XXX_MODULES:=\
 define KernelPackage/i2c-mv64xxx
   $(call i2c_defaults,$(I2C_MV64XXX_MODULES),59)
   TITLE:=Orion Platform I2C interface support
-  DEPENDS:=@TARGET_kirkwood||TARGET_orion +kmod-i2c-core
+  DEPENDS:=@TARGET_kirkwood||TARGET_orion||TARGET_mvebu (TARGET_kirkwood||TARGET_orion):kmod-i2c-core \
+	  TARGET_mvebu:kmod-of-i2c
 endef
 
 define KernelPackage/i2c-mv64xxx/description
- Kernel module for I2C interface on the Kirkwood and Orion
+ Kernel module for I2C interface on the Kirkwood, Orion and Armada XP/370
  family processors.
 endef
 

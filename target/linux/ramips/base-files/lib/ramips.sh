@@ -71,6 +71,9 @@ ramips_board_name() {
 	*"Argus ATP-52B")
 		name="argus-atp52b"
 		;;
+	*"BR6524N")
+		name="br6524n"
+		;;
 	*"Asus WL-330N")
 		name="wl-330n"
 		;;
@@ -178,6 +181,9 @@ ramips_board_name() {
 		;;
 	*"Sitecom WL-351 v1 002")
 		name="wl-351"
+		;;
+	*"Tenda 3G300M")
+		name="3g300m"
 		;;
 	*"Tenda W306R V2.0")
 		name="w306r-v20"
