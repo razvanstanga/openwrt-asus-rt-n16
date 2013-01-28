@@ -7,7 +7,6 @@ cp ./razvi/feeds.conf.default ./
 ./scripts/feeds install mtr
 ./scripts/feeds install wide-dhcpv6-server
 ./scripts/feeds install wide-dhcpv6-client
-./scripts/feeds install exfat
 
 # update luci
 ./scripts/feeds update luci
@@ -20,6 +19,10 @@ cp ./razvi/feeds.conf.default ./
 # update wifischedule
 ./scripts/feeds update wifischedule
 ./scripts/feeds install -a -p wifischedule
+
+# upddate other packages
+./scripts/feeds update packagesother
+./scripts/feeds install exfat
 
 cp ./razvi/opkg.conf package/opkg/files/
 
