@@ -74,7 +74,6 @@ static void wl_glue_ssb_remove(struct ssb_device *dev)
 
 static const struct ssb_device_id wl_glue_ssb_tbl[] = {
 	SSB_DEVICE(SSB_VENDOR_BROADCOM, SSB_DEV_80211, SSB_ANY_REV),
-	SSB_DEVICE(SSB_VENDOR_BROADCOM2, SSB_DEV_80211, SSB_ANY_REV),
 	SSB_DEVTABLE_END
 };
 

@@ -15,7 +15,7 @@ include $(INCLUDE_DIR)/package.mk
 
 define KernelPackage/switch
   SUBMENU:=Other modules
-  DEPENDS:=@TARGET_brcm47xx||TARGET_brcm63xx||TARGET_brcm4716
+  DEPENDS:=@TARGET_brcm47xx||TARGET_brcm63xx
   TITLE:=Switch drivers
   FILES:= \
 	$(PKG_BUILD_DIR)/switch-core.ko \

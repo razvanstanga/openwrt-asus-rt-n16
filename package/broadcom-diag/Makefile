@@ -15,7 +15,7 @@ include $(INCLUDE_DIR)/package.mk
 
 define KernelPackage/diag
   SUBMENU:=Other modules
-  DEPENDS:=@TARGET_brcm47xx||TARGET_brcm4716
+  DEPENDS:=@TARGET_brcm47xx
   TITLE:=Driver for router LEDs and Buttons
   FILES:=$(PKG_BUILD_DIR)/diag.ko
 endef
