@@ -1,7 +1,7 @@
---- a/arch/powerpc/boot/dts/mpc8548cds.dts
-+++ b/arch/powerpc/boot/dts/mpc8548cds.dts
-@@ -301,6 +301,9 @@
- 				  0x0 0x100000>;
+--- a/arch/powerpc/boot/dts/mpc8548cds_32b.dts
++++ b/arch/powerpc/boot/dts/mpc8548cds_32b.dts
+@@ -75,6 +75,9 @@
+ 			ranges = <0x0 0x0 0x0 0xc0000000 0x0 0x20000000>;
  		};
  	};
 +	chosen {
@@ -9,10 +9,10 @@
 +	};
  };
  
- /include/ "fsl/mpc8548si-post.dtsi"
+ /*
 --- a/arch/powerpc/boot/dts/fsl/mpc8548si-post.dtsi
 +++ b/arch/powerpc/boot/dts/fsl/mpc8548si-post.dtsi
-@@ -116,7 +116,24 @@
+@@ -131,7 +131,24 @@
  
  /include/ "pq3-i2c-0.dtsi"
  /include/ "pq3-i2c-1.dtsi"

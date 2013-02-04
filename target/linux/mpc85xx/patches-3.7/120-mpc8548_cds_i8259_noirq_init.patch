@@ -1,6 +1,6 @@
 --- a/arch/powerpc/platforms/85xx/mpc85xx_cds.c
 +++ b/arch/powerpc/platforms/85xx/mpc85xx_cds.c
-@@ -215,15 +215,16 @@ static int mpc85xx_cds_8259_attach(void)
+@@ -247,15 +247,16 @@ static int mpc85xx_cds_8259_attach(void)
  		return -ENODEV;
  	}
  
