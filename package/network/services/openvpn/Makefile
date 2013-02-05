@@ -9,7 +9,6 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=openvpn
 
-PKG_REV:=56cffde5d5320e0b1ec364d3e486aca9
 PKG_VERSION:=2.3.0
 PKG_RELEASE=1
 
@@ -47,19 +46,6 @@ endef
 Package/openvpn-openssl/config=$(call Package/openvpn/config/Default,openssl)
 Package/openvpn-polarssl/config=$(call Package/openvpn/config/Default,polarssl)
 Package/openvpn-nossl/config=$(call Package/openvpn/config/Default,nossl)
-
-define Package/openvpn-easy-rsa
-  $(call Package/openvpn)
-  DEPENDS:=+openssl-util
-  TITLE:=Simple shell scripts to manage a Certificate Authority
-endef
-
-define Package/openvpn-easy-rsa/conffiles
-/etc/easy-rsa/keys/serial
-/etc/easy-rsa/keys/index.txt
-/etc/easy-rsa/vars
-endef
-
 
 ifeq ($(BUILD_VARIANT),polarssl)
 CONFIG_OPENVPN_POLARSSL:=y
@@ -131,18 +117,6 @@ define Package/openvpn-$(BUILD_VARIANT)/install
 		$(1)/lib/upgrade/keep.d/openvpn
 endef
 
-define Package/openvpn-easy-rsa/install
-	$(INSTALL_DIR) $(1)/usr/sbin
-	$(CP) $(PKG_BUILD_DIR)/easy-rsa/2.0/{build-*,clean-all,inherit-inter,list-crl,pkitool,revoke-full,sign-req,whichopensslcnf} $(1)/usr/sbin/
-	$(INSTALL_DIR) $(1)/etc/easy-rsa
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/easy-rsa/2.0/openssl-1.0.0.cnf $(1)/etc/easy-rsa/openssl-1.0.0.cnf
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/easy-rsa/2.0/vars $(1)/etc/easy-rsa/vars
-	$(INSTALL_DIR) $(1)/etc/easy-rsa/keys
-	$(INSTALL_DATA) files/easy-rsa.index $(1)/etc/easy-rsa/keys/index.txt
-	$(INSTALL_DATA) files/easy-rsa.serial $(1)/etc/easy-rsa/keys/serial
-endef
-
 $(eval $(call BuildPackage,openvpn-openssl))
 $(eval $(call BuildPackage,openvpn-polarssl))
 $(eval $(call BuildPackage,openvpn-nossl))
-$(eval $(call BuildPackage,openvpn-easy-rsa))
