@@ -1,6 +1,7 @@
 #!/bin/sh
-# Copyright (C) 2006-2011 OpenWrt.org
+# Copyright (C) 2006-2013 OpenWrt.org
 # Copyright (C) 2006 Fokus Fraunhofer <carsten.tittel@fokus.fraunhofer.de>
+# Copyright (C) 2010 Vertical Communications
 
 
 debug () {
@@ -240,6 +241,64 @@ find_mtd_chardev() {
 	echo "${INDEX:+$PREFIX$INDEX}"
 }
 
+mtd_get_mac_ascii()
+{
+	local mtdname="$1"
+	local key="$2"
+	local part
+	local mac_dirty
+
+	. /lib/functions.sh
+
+	part=$(find_mtd_part "$mtdname")
+	if [ -z "$part" ]; then
+		echo "mtd_get_mac_ascii: partition $mtdname not found!" >&2
+		return
+	fi
+
+	mac_dirty=$(strings "$part" | sed -n 's/'"$key"'=//p')
+	# "canonicalize" mac
+	printf "%02x:%02x:%02x:%02x:%02x:%02x" 0x${mac_dirty//:/ 0x}
+}
+
+mtd_get_mac_binary() {
+	local mtdname="$1"
+	local offset="$2"
+	local part
+
+	part=$(find_mtd_part "$mtdname")
+	if [ -z "$part" ]; then
+		echo "mtd_get_mac_binary: partition $mtdname not found!" >&2
+		return
+	fi
+
+	dd bs=1 skip=$offset count=6 if=$part 2>/dev/null | hexdump -v -n 6 -e '5/1 "%02x:" 1/1 "%02x"'
+}
+
+macaddr_add() {
+	local mac=$1
+	local val=$2
+	local oui=${mac%:*:*:*}
+	local nic=${mac#*:*:*:}
+
+	nic=$(printf "%06x" $((0x${nic//:/} + $val & 0xffffff)) | sed 's/^\(.\{2\}\)\(.\{2\}\)\(.\{2\}\)/\1:\2:\3/')
+	echo $oui:$nic
+}
+
+macaddr_setbit_la()
+{
+	local mac=$1
+
+	printf "%02x:%s" $((0x${mac%%:*} | 0x02)) ${mac#*:}
+}
+
+macaddr_2bin()
+{
+	local mac=$1
+
+	echo -ne \\x${mac//:/\\x}
+}
+
 strtok() { # <string> { <variable> [<separator>] ... }
 	local tmp
 	local val="$1"
@@ -348,10 +407,6 @@ pi_include() {
 	return 0
 }
 
-#!/bin/sh
-# Copyright (C) 2006-2010 OpenWrt.org
-# Copyright (C) 2010 Vertical Communications
-
 boot_hook_splice_start() {
 	export -n PI_HOOK_SPLICE=1
 }
@@ -414,7 +469,7 @@ boot_run_hook() {
 	done
 }
 
-jffs2_ready () {
+jffs2_ready() {
 	mtdpart="$(find_mtd_part rootfs_data)"
 	[ -z "$mtdpart" ] && return 1
 	magic=$(hexdump $mtdpart -n 4 -e '4/1 "%02x"')
