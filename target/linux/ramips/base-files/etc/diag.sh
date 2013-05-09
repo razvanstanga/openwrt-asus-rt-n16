@@ -9,11 +9,14 @@ get_status_led() {
 	3g-6200n)
 		status_led="edimax:green:power"
 		;;
-	3g300m)
+	3g300m | w150m)
 		status_led="tenda:blue:ap"
 		;;
 	argus-atp52b)
 		status_led="argus-atp52b:green:run"
+		;;
+	asl26555)
+		status_led="asl26555:green:power"
 		;;
 	br6524n)
 		status_led="edimax:blue:power"
@@ -21,7 +24,10 @@ get_status_led() {
 	br6425)
 		status_led="edimax:green:power"
 		;;
-	dir-300-b1 | dir-600-b1 | dir-600-b2 | dir-615-h1 | dir-615-d | dir-620-a1)
+	d105)
+		status_led="d105:red:power"
+		;;
+	dir-300-b1 | dir-600-b1 | dir-600-b2 | dir-615-h1 | dir-615-d | dir-620-a1| dir-620-d1)
 		status_led="d-link:green:status"
 		;;
 	dir-645)
@@ -108,8 +114,14 @@ get_status_led() {
 	wr512-3gn)
 		status_led="wr512:green:wps"
 		;;
+	wnce2001)
+		status_led="netgear:green:power"
+		;;
 	mzk-w300nh2)
 		status_led="mzkw300nh2:green:power"
+		;;
+	ur-326n4g)
+		status_led="ur326:green:wps"
 		;;
 	ur-336un)
 		status_led="ur336:green:wps"
@@ -125,7 +137,7 @@ set_state() {
 
 	case "$1" in
 	preinit)
-		insmod leds-gpio
+		insmod leds-gpio 2> /dev/null
 		status_led_blink_preinit
 		;;
 	failsafe)

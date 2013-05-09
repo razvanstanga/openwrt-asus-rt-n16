@@ -151,7 +151,9 @@ tl-wr941nd)
 	ucidef_set_interfaces_lan_wan "lan1 lan2 lan3 lan4" "wan"
 	;;
 
-tl-wr841n-v8)
+tl-mr3420-v2 |\
+tl-wr841n-v8 |\
+wnr2000-v3)
 	ucidef_set_interfaces_lan_wan "eth1" "eth0"
 	ucidef_add_switch "switch0" "1" "1"
 	ucidef_add_switch_vlan "switch0" "1" "0 1 2 3 4"
@@ -175,7 +177,8 @@ wzr-hp-g300nh)
 	ucidef_add_switch_vlan "switch0" "1" "0 1 2 3 5t"
 	;;
 
-dir-825-c1|\
+dir-825-c1 |\
+dir-835-a1 |\
 wndr4300)
 	ucidef_set_interfaces_lan_wan "eth0.1" "eth0.2"
 	ucidef_add_switch "switch0" "1" "1"
@@ -197,6 +200,7 @@ tl-mr3040 |\
 tl-wa901nd |\
 tl-wa901nd-v2 |\
 tl-wr703n |\
+wndap360 |\
 wp543)
 	ucidef_set_interface_lan "eth0"
 	;;
@@ -208,6 +212,7 @@ jwap003 |\
 pb42 |\
 pb44 |\
 routerstation|\
+tl-wr720n-v3|\
 wpe72)
 	ucidef_set_interfaces_lan_wan "eth1" "eth0"
 	;;
@@ -227,6 +232,7 @@ tew-712br |\
 tl-mr3220 |\
 tl-mr3220-v2 |\
 tl-mr3420 |\
+tl-wdr3500 |\
 tl-wr741nd |\
 tl-wr741nd-v4 |\
 tl-wr841n-v7 |\

@@ -794,7 +794,7 @@ struct sk_buff* atm_alloc_tx(struct atm_vcc *vcc, unsigned int size)
 		return NULL;
 	}
 	/*  send buffer overflow    */
-	if ( atomic_read(&sk_atm(vcc)->sk_wmem_alloc) && !atm_may_send(vcc, size) ) {
+	if ( sk_wmem_alloc_get(sk_atm(vcc)) && !atm_may_send(vcc, size) ) {
 		pr_err("atm_alloc_tx: send buffer overflow\n");
 		return NULL;
 	}
@@ -1759,7 +1759,7 @@ static const struct of_device_id ltq_atm_match[] = {
 };
 MODULE_DEVICE_TABLE(of, ltq_atm_match);
 
-static int __devinit ltq_atm_probe(struct platform_device *pdev)
+static int ltq_atm_probe(struct platform_device *pdev)
 {
 	const struct of_device_id *match;
 	struct ltq_atm_ops *ops = NULL;
@@ -1858,7 +1858,7 @@ INIT_PRIV_DATA_FAIL:
 	return ret;
 }
 
-static int __devexit ltq_atm_remove(struct platform_device *pdev)
+static int ltq_atm_remove(struct platform_device *pdev)
 {
 	int port_num;
 	struct ltq_atm_ops *ops = platform_get_drvdata(pdev);
@@ -1884,7 +1884,7 @@ static int __devexit ltq_atm_remove(struct platform_device *pdev)
 
 static struct platform_driver ltq_atm_driver = {
 	.probe = ltq_atm_probe,
-	.remove = __devexit_p(ltq_atm_remove),
+	.remove = ltq_atm_remove,
 	.driver = {
 		.name = "atm",
 		.owner = THIS_MODULE,

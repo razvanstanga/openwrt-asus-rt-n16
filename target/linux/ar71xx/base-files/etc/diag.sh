@@ -50,7 +50,8 @@ get_status_led() {
 	dir-615-c1)
 		status_led="d-link:green:status"
 		;;
-	dir-825-b1)
+	dir-825-b1 |\
+	dir-835-a1)
 		status_led="d-link:orange:power"
 		;;
 	dir-825-c1)
@@ -117,8 +118,10 @@ get_status_led() {
 	tl-mr3220 | \
 	tl-mr3220-v2 | \
 	tl-mr3420 | \
+	tl-mr3420-v2 | \
 	tl-wa901nd | \
 	tl-wa901nd-v2 | \
+	tl-wdr3500 | \
 	tl-wr1041n-v2 | \
 	tl-wr1043nd | \
 	tl-wr741nd | \
@@ -130,7 +133,8 @@ get_status_led() {
 		status_led="tp-link:green:system"
 		;;
 	tl-wdr4300 | \
-	tl-wr703n)
+	tl-wr703n | \
+	tl-wr720n-v3)
 		status_led="tp-link:blue:system"
 		;;
 	tl-wr2543n)
@@ -154,6 +158,9 @@ get_status_led() {
 	wzr-hp-ag300h | \
 	wzr-hp-g300nh2)
 		status_led="buffalo:red:diag"
+		;;
+	wndap360)
+		status_led="wndap360:green:power"
 		;;
 	wndr3700)
 		status_led="wndr3700:green:power"
@@ -184,9 +191,9 @@ set_state() {
 
 	case "$1" in
 	preinit)
-		insmod leds-gpio
-		insmod ledtrig-default-on
-		insmod ledtrig-timer
+		insmod leds-gpio 2> /dev/null
+		insmod ledtrig-default-on 2> /dev/null
+		insmod ledtrig-timer 2> /dev/null
 		status_led_blink_preinit
 		;;
 	failsafe)

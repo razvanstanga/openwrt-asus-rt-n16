@@ -8,13 +8,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=firewall3
-PKG_VERSION:=2013-03-02
+PKG_VERSION:=2013-05-02
 PKG_RELEASE:=$(PKG_SOURCE_VERSION)
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=git://nbd.name/firewall3.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=46536e5263c4bf57a91c38b5d08d78c774649dda
+PKG_SOURCE_VERSION:=8875f2d067b84a40731983fd495f3e0e4daa493b
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_MAINTAINER:=Jo-Philipp Wich <jow@openwrt.org>
 
@@ -49,6 +49,8 @@ define Package/firewall3/install
 	$(INSTALL_DATA) ./files/firewall.config $(1)/etc/config/firewall
 	$(INSTALL_DIR) $(1)/etc/
 	$(INSTALL_DATA) ./files/firewall.user $(1)/etc/firewall.user
+	$(INSTALL_DIR) $(1)/usr/share/firewall/
+	$(INSTALL_BIN) ./files/ipv6-ula-border.sh $(1)/usr/share/firewall/ipv6-ula-border.sh
 endef
 
 $(eval $(call BuildPackage,firewall3))

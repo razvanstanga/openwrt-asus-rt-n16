@@ -157,7 +157,7 @@ $(eval $(call KernelPackage,usb2))
 
 define KernelPackage/usb2-pci
   TITLE:=Support for PCI USB2 controllers
-  DEPENDS:=@PCI_SUPPORT @LINUX_3_8 +kmod-usb2
+  DEPENDS:=@PCI_SUPPORT @(LINUX_3_8||LINUX_3_9) +kmod-usb2
   KCONFIG:=CONFIG_USB_EHCI_PCI
   FILES:=$(LINUX_DIR)/drivers/usb/host/ehci-pci.ko
   AUTOLOAD:=$(call AutoLoad,42,ehci-pci,1)
@@ -841,6 +841,22 @@ define KernelPackage/usb-net-rndis/description
 endef
 
 $(eval $(call KernelPackage,usb-net-rndis))
+
+define KernelPackage/usb-net-cdc-mbim
+  SUBMENU:=$(USB_MENU)
+  TITLE:=Kernel module for MBIM Devices
+  KCONFIG:=CONFIG_USB_NET_CDC_MBIM
+  FILES:= \
+   $(LINUX_DIR)/drivers/$(USBNET_DIR)/cdc_mbim.ko
+  AUTOLOAD:=$(call AutoLoad,61,cdc_mbim)
+  $(call AddDepends/usb-net,+kmod-usb-wdm,+kmod-usb-net-cdc-ncm)
+endef
+
+define KernelPackage/usb-net-cdc-mbim/description
+ Kernel module for Option USB High Speed Mobile Devices
+endef
+
+$(eval $(call KernelPackage,usb-net-cdc-mbim))
 
 define KernelPackage/usb-net-cdc-ncm
   TITLE:=Support for CDC NCM connections
