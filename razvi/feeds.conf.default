@@ -1,6 +1,6 @@
 src-svn packages svn://svn.openwrt.org/openwrt/packages
 src-svn xwrt http://x-wrt.googlecode.com/svn/trunk/package
-src-svn luci http://svn.luci.subsignal.org/luci/trunk/contrib/package
+src-svn luci http://svn.luci.subsignal.org/luci/trunk
 #src-svn phone svn://svn.openwrt.org/openwrt/feeds/phone
 #src-svn efl svn://svn.openwrt.org/openwrt/feeds/efl
 #src-svn xorg svn://svn.openwrt.org/openwrt/feeds/xorg
@@ -8,6 +8,6 @@ src-svn luci http://svn.luci.subsignal.org/luci/trunk/contrib/package
 #src-svn xfce svn://svn.openwrt.org/openwrt/feeds/xfce
 #src-svn lxde svn://svn.openwrt.org/openwrt/feeds/lxde
 #src-link custom /usr/src/openwrt/custom-feed
-src-svn mwan svn://213.136.13.52/var/svn/mwan
+src-git mwan git://github.com/Adze1502/mwan.git
 src-git wifischedule git://git.razvi.ro/wifischedule.git
 src-git packagesother git://git.razvi.ro/openwrt.org/packages-other.git
