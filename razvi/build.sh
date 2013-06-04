@@ -7,6 +7,7 @@ cp ./razvi/feeds.conf.default ./
 ./scripts/feeds install mtr
 ./scripts/feeds install wide-dhcpv6-server
 ./scripts/feeds install wide-dhcpv6-client
+./scripts/feeds install bind-dig
 
 # update luci
 ./scripts/feeds update luci
