@@ -20,7 +20,7 @@
 +#endif
 --- a/init/Kconfig
 +++ b/init/Kconfig
-@@ -1185,6 +1185,10 @@ config RELAY
+@@ -1186,6 +1186,10 @@ config RELAY
  
  	  If unsure, say N.
  
@@ -166,7 +166,7 @@
 +		return;
 +
 +	va_start(args, fmt);
-+	crashlog_buf->len += vsnprintf(
++	crashlog_buf->len += vscnprintf(
 +		&crashlog_buf->data[crashlog_buf->len],
 +		len, fmt, args);
 +	va_end(args);

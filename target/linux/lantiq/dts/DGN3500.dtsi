@@ -72,7 +72,7 @@
 		#size-cells = <1>;
 
 		compatible = "spi-gpio";
-		
+
 		gpio-miso = <&gpio 16 0>;
 		gpio-mosi = <&gpio 17 0>;
 		gpio-sck = <&gpio 18 0>;
@@ -107,7 +107,7 @@
 
 			partition@50000 {
 				reg = <0x50000 0xfa0000>;
-				label = "linux";
+				label = "firmware";
 			};
 		};
 	};
@@ -116,6 +116,7 @@
 		compatible = "ath9k,eeprom";
 		ath,eep-flash = <&ath9k_cal 0xf000>;
 		ath,pci-slot = <14>;
+		ath,eep-endian;
 		ath,eep-swap;
 	};
 
@@ -130,7 +131,7 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		poll-interval = <100>;
-		
+
 		rfkill {
 			label = "rfkill";
 			gpios = <&gpio 36 1>;

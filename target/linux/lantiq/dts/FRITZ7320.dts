@@ -18,7 +18,7 @@
 			nor-boot@0 {
 				compatible = "lantiq,nor";
 				bank-width = <2>;
-				reg = <0 0x0 0x800000>;
+				reg = <0 0x0 0x1000000>;
 				#address-cells = <1>;
 				#size-cells = <1>;
 
@@ -29,7 +29,7 @@
 				};
 
 				partition@20000 {
-					label = "linux";
+					label = "firmware";
 					reg = <0x20000 0xf60000>;
 				};
 
@@ -95,7 +95,7 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		poll-interval = <100>;
-		
+
 		rfkill {
 			label = "rfkill";
 			gpios = <&gpio 1 1>;

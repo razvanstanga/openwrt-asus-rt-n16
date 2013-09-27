@@ -8,13 +8,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=u-boot
-PKG_VERSION:=2013.04
+PKG_VERSION:=2013.07
 PKG_RELEASE:=1
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=ftp://ftp.denx.de/pub/u-boot
-PKG_MD5SUM:=21bf962d69938ed4ed783b792b2b074e
+PKG_MD5SUM:=8445162690052e6afd4b8f87af2bb557
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -24,17 +24,52 @@ define uboot/Default
   IMAGE:=
 endef
 
-define uboot/wandboard_solo
-  TITLE:=U-Boot for the Wandboard Solo
+define uboot/nitrogen6dl
+  TITLE:=U-Boot for Nitrogen6x i.MX6Dual-Lite 1GB board
+endef
+
+define uboot/nitrogen6dl2g
+  TITLE:=U-Boot for Nitrogen6x i.MX6Dual-Lite 2GB board
+endef
+
+define uboot/nitrogen6q
+  TITLE:=U-Boot for Nitrogen6x/SABRE Lite (MX6Q/1GB)
+endef
+
+define uboot/nitrogen6q2g
+  TITLE:=U-Boot for Nitrogen6x i.MX6Quad 2GB board
+endef
+
+define uboot/nitrogen6s
+  TITLE:=U-Boot for Nitrogen6x i.MX6Solo 512MB board
+endef
+
+define uboot/nitrogen6s1g
+  TITLE:=U-Boot for Nitrogen6x i.MX6Solo 1GB board
 endef
 
 define uboot/wandboard_dl
   TITLE:=U-Boot for the Wandboard Dual Lite
 endef
 
+define uboot/wandboard_quad
+  TITLE:=U-Boot for the Wandboard Quad
+endef
+
+define uboot/wandboard_solo
+  TITLE:=U-Boot for the Wandboard Solo
+endef
+
 UBOOTS := \
-	wandboard_solo \
-	wandboard_dl
+	nitrogen6dl \
+	nitrogen6dl2g \
+	nitrogen6q \
+	nitrogen6q2g \
+	nitrogen6s \
+	nitrogen6s1g \
+	wandboard_dl \
+	wandboard_quad \
+	wandboard_solo
 
 define Package/uboot/template
 define Package/uboot-imx6-$(1)

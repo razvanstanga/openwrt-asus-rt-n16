@@ -75,6 +75,7 @@ struct b53_device {
 	u8 duplex_reg;
 	u8 jumbo_pm_reg;
 	u8 jumbo_size_reg;
+	int reset_gpio;
 
 	/* used ports mask */
 	u16 enabled_ports;
@@ -118,6 +119,13 @@ static inline int is5365(struct b53_device *dev)
 static inline int is5397_98(struct b53_device *dev)
 {
 	return dev->chip_id == BCM5397_DEVICE_ID ||
+		dev->chip_id == BCM5398_DEVICE_ID;
+}
+
+static inline int is539x(struct b53_device *dev)
+{
+	return dev->chip_id == BCM5395_DEVICE_ID ||
+		dev->chip_id == BCM5397_DEVICE_ID ||
 		dev->chip_id == BCM5398_DEVICE_ID;
 }
 
@@ -275,4 +283,25 @@ static inline int b53_write64(struct b53_device *dev, u8 page, u8 reg,
 	return ret;
 }
 
+#ifdef CONFIG_BCM47XX
+
+#include <bcm47xx_nvram.h>
+#include <bcm47xx_board.h>
+static inline int b53_switch_get_reset_gpio(struct b53_device *dev)
+{
+	enum bcm47xx_board board = bcm47xx_board_get();
+
+	switch (board) {
+	case BCM47XX_BOARD_LINKSYS_WRT310NV1:
+		return 8;
+	default:
+		return bcm47xx_nvram_gpio_pin("robo_reset");
+	}
+}
+#else
+static inline int b53_switch_get_reset_gpio(struct b53_device *dev)
+{
+	return -ENOENT;
+}
+#endif
 #endif

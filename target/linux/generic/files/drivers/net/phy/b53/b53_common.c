@@ -20,6 +20,7 @@
 
 #include <linux/delay.h>
 #include <linux/export.h>
+#include <linux/gpio.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/switch.h>
@@ -187,8 +188,13 @@ static void b53_set_vlan_entry(struct b53_device *dev, u16 vid, u16 members,
 	if (is5325(dev)) {
 		u32 entry = 0;
 
-		if (members)
-			entry = (untag << VA_UNTAG_S) | members | VA_VALID_25;
+		if (members) {
+			entry = (untag << VA_UNTAG_S) | members;
+			if (dev->core_rev >= 3)
+				entry |= VA_VALID_25_R4 | vid << VA_VID_HIGH_S;
+			else
+				entry |= VA_VALID_25;
+		}
 
 		b53_write32(dev, B53_VLAN_PAGE, B53_VLAN_WRITE_25, entry);
 		b53_write16(dev, B53_VLAN_PAGE, B53_VLAN_TABLE_ACCESS_25, vid |
@@ -451,9 +457,35 @@ static int b53_apply(struct b53_device *dev)
 	return 0;
 }
 
+void b53_switch_reset_gpio(struct b53_device *dev)
+{
+	int gpio = dev->reset_gpio;
+
+	if (gpio < 0)
+		return;
+
+	/*
+	 * Reset sequence: RESET low(50ms)->high(20ms)
+	 */
+	gpio_set_value(gpio, 0);
+	mdelay(50);
+
+	gpio_set_value(gpio, 1);
+	mdelay(20);
+
+	dev->current_page = 0xff;
+}
+
 static int b53_switch_reset(struct b53_device *dev)
 {
 	u8 mgmt;
+
+	b53_switch_reset_gpio(dev);
+
+	if (is539x(dev)) {
+		b53_write8(dev, B53_CTRL_PAGE, B53_SOFTRESET, 0x83);
+		b53_write8(dev, B53_CTRL_PAGE, B53_SOFTRESET, 0x00);
+	}
 
 	b53_read8(dev, B53_CTRL_PAGE, B53_SWITCH_MODE, &mgmt);
 
@@ -948,7 +980,7 @@ static const struct switch_dev_ops b53_switch_ops_65 = {
 		.n_attr = ARRAY_SIZE(b53_global_ops_65),
 	},
 	.attr_port = {
-		.attr = b53_no_ops,
+		.attr = b53_port_ops,
 		.n_attr = ARRAY_SIZE(b53_port_ops),
 	},
 	.attr_vlan = {
@@ -1114,6 +1146,7 @@ int b53_switch_init(struct b53_device *dev)
 {
 	struct switch_dev *sw_dev = &dev->sw_dev;
 	unsigned i;
+	int ret;
 
 	for (i = 0; i < ARRAY_SIZE(b53_switch_chips); i++) {
 		const struct b53_chip_data *chip = &b53_switch_chips[i];
@@ -1155,8 +1188,13 @@ int b53_switch_init(struct b53_device *dev)
 			dev->enabled_ports &= ~BIT(4);
 			break;
 		default:
+/* On the BCM47XX SoCs this is the supported internal switch.*/
+#ifndef CONFIG_BCM47XX
 			/* BCM5325M */
 			return -EINVAL;
+#else
+			break;
+#endif
 		}
 	} else if (dev->chip_id == BCM53115_DEVICE_ID) {
 		u64 strap_value;
@@ -1186,6 +1224,13 @@ int b53_switch_init(struct b53_device *dev)
 	dev->buf = devm_kzalloc(dev->dev, B53_BUF_SIZE, GFP_KERNEL);
 	if (!dev->buf)
 		return -ENOMEM;
+
+	dev->reset_gpio = b53_switch_get_reset_gpio(dev);
+	if (dev->reset_gpio >= 0) {
+		ret = devm_gpio_request_one(dev->dev, dev->reset_gpio, GPIOF_OUT_INIT_HIGH, "robo_reset");
+		if (ret)
+			return ret;
+	}
 
 	return b53_switch_reset(dev);
 }
@@ -1260,7 +1305,12 @@ int b53_switch_detect(struct b53_device *dev)
 		}
 	}
 
-	return b53_read8(dev, B53_MGMT_PAGE, B53_REV_ID, &dev->core_rev);
+	if (dev->chip_id == BCM5325_DEVICE_ID)
+		return b53_read8(dev, B53_STAT_PAGE, B53_REV_ID_25,
+				 &dev->core_rev);
+	else
+		return b53_read8(dev, B53_MGMT_PAGE, B53_REV_ID,
+				 &dev->core_rev);
 }
 EXPORT_SYMBOL(b53_switch_detect);
 

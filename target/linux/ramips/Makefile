@@ -9,11 +9,10 @@ include $(TOPDIR)/rules.mk
 ARCH:=mipsel
 BOARD:=ramips
 BOARDNAME:=Ralink RT288x/RT3xxx
-SUBTARGETS:=rt288x rt305x rt3883
-CFLAGS:=-Os -pipe -fno-caller-saves -mno-branch-likely
+SUBTARGETS:=rt305x rt3883 mt7620a rt288x
 FEATURES:=squashfs gpio
 
-LINUX_VERSION:=3.8.13
+LINUX_VERSION:=3.10.13
 
 include $(INCLUDE_DIR)/target.mk
 DEFAULT_PACKAGES+=\

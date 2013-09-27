@@ -24,30 +24,43 @@ platform_check_image() {
 	all5002 | \
 	all5003 | \
 	asl26555 | \
+	awm002-evb | \
 	bc2 | \
 	broadway | \
 	carambola | \
 	d105 | \
+	dcs-930 | \
 	dir-300-b1 | \
+	dir-300-b7 | \
+	dir-320-b1 | \
 	dir-600-b1 | \
 	dir-600-b2 | \
 	dir-615-h1 | \
 	dir-615-d | \
 	dir-620-a1 | \
 	dir-620-d1 | \
+	dir-810l | \
 	dap-1350 | \
 	esr-9753 | \
+	f7c027 | \
 	fonera20n | \
 	rt-n13u | \
 	freestation5 | \
 	hw550-3g | \
+	hg255d | \
+	ip2202 | \
+	m3 | \
+	m4 | \
 	mofi3500-3gn | \
+	mpr-a1 | \
+	mpr-a2 | \
 	mzk-w300nh2 | \
 	nbg-419n | \
 	nw718 | \
 	omni-emb | \
 	omni-emb-hpm | \
 	psr-680w | \
+	rp-n53 | \
 	rt-g32-b1 | \
 	rt-n10-plus | \
 	rt-n15 | \
@@ -61,13 +74,16 @@ platform_check_image() {
 	v22rw-2x2 | \
 	wl341v3 | \
 	wl-330n | \
+	wl-330n3g | \
 	wl-351 | \
 	wnce2001 | \
 	wli-tx4-ag300n | \
 	whr-g300n |\
 	ur-326n4g |\
 	ur-336un |\
-	wr512-3gn)
+	wr512-3gn |\
+	x5 |\
+	x8)
 		[ "$magic" != "27051956" ] && {
 			echo "Invalid image type."
 			return 1

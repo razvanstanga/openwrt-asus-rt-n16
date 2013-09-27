@@ -43,6 +43,7 @@ get_status_led() {
 	db120)
 		status_led="db120:green:status"
 		;;
+	dir-505-a1 |\
 	dir-600-a1 |\
 	dir-615-e4)
 		status_led="d-link:green:power"
@@ -50,12 +51,12 @@ get_status_led() {
 	dir-615-c1)
 		status_led="d-link:green:status"
 		;;
-	dir-825-b1 |\
-	dir-835-a1)
+	dir-825-b1)
 		status_led="d-link:orange:power"
 		;;
-	dir-825-c1)
-		status_led="d-link:orange:power"
+	dir-825-c1 |\
+	dir-835-a1)
+		status_led="d-link:amber:power"
 		;;
 	eap7660d)
 		status_led="eap7660d:green:ds4"
@@ -75,6 +76,9 @@ get_status_led() {
 		;;
 	mr600v2)
 		status_led="mr600:blue:power"
+		;;
+	mynet-n600)
+		status_led="wd:blue:power"
 		;;
 	mzk-w04nu | \
 	mzk-w300nh)
@@ -109,7 +113,8 @@ get_status_led() {
 	tew-673gru)
 		status_led="trendnet:blue:wps"
 		;;
-	tew-712br)
+	tew-712br|\
+	tew-732br)
 		status_led="trendnet:green:power"
 		;;
 	tl-mr3020)
@@ -133,8 +138,11 @@ get_status_led() {
 		status_led="tp-link:green:system"
 		;;
 	archer-c7 | \
+	tl-mr10u | \
+	tl-mr13u | \
 	tl-wdr4300 | \
 	tl-wr703n | \
+	tl-wr710n | \
 	tl-wr720n-v3)
 		status_led="tp-link:blue:system"
 		;;
@@ -160,17 +168,13 @@ get_status_led() {
 	wzr-hp-g300nh2)
 		status_led="buffalo:red:diag"
 		;;
-	wndap360)
-		status_led="wndap360:green:power"
-		;;
-	wndr3700)
-		status_led="wndr3700:green:power"
-		;;
-	wndr4300)
+	wndap360 | \
+	wndr3700 | \
+	wndr4300 | \
+	wnr2000 | \
+	wnr2200 |\
+	wnr612-v2)
 		status_led="netgear:green:power"
-		;;
-	wnr2000)
-		status_led="wnr2000:green:power"
 		;;
 	wp543)
 		status_led="wp543:green:diag"
@@ -192,9 +196,6 @@ set_state() {
 
 	case "$1" in
 	preinit)
-		insmod leds-gpio 2> /dev/null
-		insmod ledtrig-default-on 2> /dev/null
-		insmod ledtrig-timer 2> /dev/null
 		status_led_blink_preinit
 		;;
 	failsafe)

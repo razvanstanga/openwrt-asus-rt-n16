@@ -48,6 +48,9 @@ config USES_SQUASHFS
 config USES_JFFS2
 	bool
 
+config USES_JFFS2_NAND
+	bool
+
 config USES_EXT4
 	bool
 
@@ -68,6 +71,9 @@ config NOMMU
 
 config HAS_MIPS16
 	depends on (mips || mipsel || mips64 || mips64el)
+	bool
+
+config RFKILL_SUPPORT
 	bool
 
 config ARCH_64BIT

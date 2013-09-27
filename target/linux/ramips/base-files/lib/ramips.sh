@@ -46,6 +46,9 @@ ramips_board_detect() {
 	*"Argus ATP-52B")
 		name="argus-atp52b"
 		;;
+	*"AsiaRF AWM002-EVB")
+		name="awm002-evb"
+		;;
 	*"BR6524N")
 		name="br6524n"
 		;;
@@ -61,14 +64,26 @@ ramips_board_detect() {
 	*"Aztech HW550-3G")
 		name="hw550-3g"
 		;;
+	*"DCS-930")
+		name="dcs-930"
+		;;
 	*"DIR-300 B1")
 		name="dir-300-b1"
+		;;
+	*"DIR-300 B7")
+		name="dir-300-b7"
+		;;
+	*"DIR-320/NRU B1")
+		name="dir-320-b1"
 		;;
 	*"DIR-600 B1")
 		name="dir-600-b1"
 		;;
 	*"DIR-600 B2")
 		name="dir-600-b2"
+		;;
+	*"DIR-610 A1")
+		name="dir-610-a1"
 		;;
 	*"DIR-620 A1")
 		name="dir-620-a1"
@@ -85,11 +100,17 @@ ramips_board_detect() {
 	*"DIR-645")
 		name="dir-645"
 		;;
+	*"DIR-810L")
+		name="dir-810l"
+		;;
 	*"DAP-1350")
 		name="dap-1350"
 		;;
 	*"ESR-9753")
 		name="esr-9753"
+		;;
+	*"F7C027")
+		name="f7c027"
 		;;
 	*"F5D8235 v1")
 		name="f5d8235-v1"
@@ -112,6 +133,12 @@ ramips_board_detect() {
 	*"MoFi Network MOFI3500-3GN")
 		name="mofi3500-3gn"
 		;;
+	*"HAME MPR-A1")
+ 		name="mpr-a1"
+ 		;;
+	*"HAME MPR-A2")
+ 		name="mpr-a2"
+ 		;;
 	*"NBG-419N")
 		name="nbg-419n"
 		;;
@@ -136,8 +163,26 @@ ramips_board_detect() {
 	*"Planex MZK-W300NH2"*)
 		name="mzk-w300nh2"
 		;;
+	*"Poray IP2202")
+		name="ip2202"
+		;;
+	*"Poray M3")
+		name="m3"
+		;;
+	*"Poray M4")
+		name="m4"
+		;;
+	*"Poray X5")
+		name="x5"
+		;;
+	*"Poray X8")
+		name="x8"
+		;;
 	*"PWH2004")
 		name="pwh2004"
+		;;
+	*"Asus RP-N53")
+		name="rp-n53"
 		;;
 	*"RT-G32 B1")
 		name="rt-g32-b1"
@@ -210,6 +255,9 @@ ramips_board_detect() {
 		;;
 	*"XDX RN502J")
 		name="xdxrn502j"
+		;;
+	*"HG255D")
+		name="hg255d"
 		;;
 	*)
 		name="generic"

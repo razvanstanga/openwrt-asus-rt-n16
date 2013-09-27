@@ -22,7 +22,6 @@
 #include "dev-gpio-buttons.h"
 #include "dev-leds-gpio.h"
 #include "dev-m25p80.h"
-#include "dev-usb.h"
 #include "machtypes.h"
 
 #define WNDAP360_GPIO_LED_POWER_ORANGE		0
@@ -47,11 +46,11 @@
  */
 static struct gpio_led wndap360_leds_gpio[] __initdata = {
 	{
-		.name		= "wndap360:green:power",
+		.name		= "netgear:green:power",
 		.gpio		= WNDAP360_GPIO_LED_POWER_GREEN,
 		.active_low	= 1,
 	}, {
-		.name		= "wndap360:orange:power",
+		.name		= "netgear:orange:power",
 		.gpio		= WNDAP360_GPIO_LED_POWER_ORANGE,
 		.active_low	= 1,
         }
@@ -76,7 +75,9 @@ static void __init wndap360_setup(void)
 
 	ath79_register_mdio(0, ~(WNDAP360_LAN_PHYMASK));
 
-	ath79_init_mac(ath79_eth0_data.mac_addr, art, 0);
+	/* Reusing wifi MAC with offset of 1 as eth0 MAC */
+	ath79_init_mac(ath79_eth0_data.mac_addr,
+		       art + WNDAP360_WMAC0_MAC_OFFSET, 1);
 	ath79_eth0_pll_data.pll_1000 = 0x11110000;
 	ath79_eth0_data.phy_if_mode = PHY_INTERFACE_MODE_RGMII;
 	ath79_eth0_data.phy_mask = WNDAP360_LAN_PHYMASK;
@@ -84,8 +85,6 @@ static void __init wndap360_setup(void)
 	ath79_eth0_data.duplex = DUPLEX_FULL;
 
 	ath79_register_eth(0);
-
-	ath79_register_usb();
 
 	ath79_register_m25p80(NULL);
 

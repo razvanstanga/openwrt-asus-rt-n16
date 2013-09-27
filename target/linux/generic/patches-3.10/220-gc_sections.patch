@@ -1,3 +1,15 @@
+From: Felix Fietkau <nbd@openwrt.org>
+
+use -ffunction-sections, -fdata-sections and --gc-sections
+
+In combination with kernel symbol export stripping this significantly reduces
+the kernel image size. Used on both ARM and MIPS architectures.
+
+Signed-off-by: Felix Fietkau <nbd@openwrt.org>
+Signed-off-by: Jonas Gorski <jogo@openwrt.org>
+Signed-off-by: Gabor Juhos <juhosg@openwrt.org>
+---
+
 --- a/arch/mips/Makefile
 +++ b/arch/mips/Makefile
 @@ -89,10 +89,14 @@ all-$(CONFIG_SYS_SUPPORTS_ZBOOT)+= vmlin
@@ -475,7 +487,24 @@
  		__stop_unwind_tab = .;
  	}
  #endif
-@@ -162,24 +162,24 @@ SECTIONS
+@@ -158,14 +158,14 @@ SECTIONS
+ 	 */
+ 	__vectors_start = .;
+ 	.vectors 0 : AT(__vectors_start) {
+-		*(.vectors)
++		KEEP(*(.vectors))
+ 	}
+ 	. = __vectors_start + SIZEOF(.vectors);
+ 	__vectors_end = .;
+ 
+ 	__stubs_start = .;
+ 	.stubs 0x1000 : AT(__stubs_start) {
+-		*(.stubs)
++		KEEP(*(.stubs))
+ 	}
+ 	. = __stubs_start + SIZEOF(.stubs);
+ 	__stubs_end = .;
+@@ -179,24 +179,24 @@ SECTIONS
  	}
  	.init.arch.info : {
  		__arch_info_begin = .;
@@ -506,11 +535,11 @@
  	.init.data : {
 --- a/arch/arm/boot/compressed/Makefile
 +++ b/arch/arm/boot/compressed/Makefile
-@@ -122,6 +122,7 @@ ifeq ($(CONFIG_FUNCTION_TRACER),y)
+@@ -123,6 +123,7 @@ ifeq ($(CONFIG_FUNCTION_TRACER),y)
  ORIG_CFLAGS := $(KBUILD_CFLAGS)
  KBUILD_CFLAGS = $(subst -pg, , $(ORIG_CFLAGS))
  endif
 +KBUILD_CFLAGS_KERNEL := $(patsubst -f%-sections,,$(KBUILD_CFLAGS_KERNEL))
  
  ccflags-y := -fpic -mno-single-pic-base -fno-builtin -I$(obj)
- asflags-y := -Wa,-march=all -DZIMAGE
+ asflags-y := -DZIMAGE

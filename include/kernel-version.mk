@@ -14,8 +14,11 @@ endif
 ifeq ($(LINUX_VERSION),3.8.13)
   LINUX_KERNEL_MD5SUM:=2af19d06cd47ec459519159cdd10542d
 endif
-ifeq ($(LINUX_VERSION),3.9.4)
-  LINUX_KERNEL_MD5SUM:=053095dfe88fbd52e7cc8db302631d99
+ifeq ($(LINUX_VERSION),3.9.11)
+  LINUX_KERNEL_MD5SUM:=edbf88eb7f7d34dbd5d3887726790755
+endif
+ifeq ($(LINUX_VERSION),3.10.13)
+  LINUX_KERNEL_MD5SUM:=64ffe74249442fd7452d12348955ccfd
 endif
 
 # disable the md5sum check for unknown kernel versions

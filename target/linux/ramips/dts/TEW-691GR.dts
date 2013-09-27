@@ -7,32 +7,25 @@
 	model = "TRENDnet TEW-691GR";
 
 	palmbus@10000000 {
-		sysc@0 {
-			ralink,pinmux = "uartlite";
-			ralink,gpiomux = "i2c", "jtag";
-			ralink,uartmux = "gpio";
-			ralink,pcimux = "pci-fnc";
-			ralink,wdtmux = <1>;
-		};
-
-		timer@100 {
-			status = "okay";
-		};
-
-		gpio0: gpio@600 {
-			status = "okay";
-		};
-
 		gpio1: gpio@638 {
 			status = "okay";
 		};
 	};
 
-	ethernet@10100000 {
-		status = "okay";
-		phy-handle = <&phy0>;
-		phy-mode = "rgmii";
+	pinctrl {
+		state_default: pinctrl0 {
+			gpio {
+				ralink,group = "spi", "i2c", "jtag", "uartf";
+				ralink,function = "gpio";
+			};
+		};
+	};
 
+	ethernet@10100000 {
+		port@0 {
+			phy-handle = <&phy0>;
+			phy-mode = "rgmii";
+		};
 		mdio-bus {
 			status = "okay";
 
@@ -43,7 +36,6 @@
 	};
 
 	wmac@10180000 {
-		status = "okay";
 		ralink,5ghz = <0>;
 	};
 

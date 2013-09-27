@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=iptables
-PKG_VERSION:=1.4.19.1
+PKG_VERSION:=1.4.20
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
@@ -17,7 +17,7 @@ PKG_SOURCE_URL:=http://www.netfilter.org/projects/iptables/files \
 	ftp://ftp.be.netfilter.org/pub/netfilter/iptables/ \
 	ftp://ftp.de.netfilter.org/pub/netfilter/iptables/ \
 	ftp://ftp.no.netfilter.org/pub/netfilter/iptables/
-PKG_MD5SUM:=be97ce9007fa42c867901b496c935a0a
+PKG_MD5SUM:=387b92d3efcf4f07fe31c3bf0f1d18f5
 
 PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
@@ -300,6 +300,17 @@ $(call Package/iptables/Default)
   MENU:=1
 endef
 
+
+define Package/ip6tables-mod-nat
+$(call Package/iptables/Default)
+  DEPENDS:=ip6tables +kmod-ipt-nat6
+  TITLE:=IPv6 NAT extensions
+endef
+
+define Package/ip6tables-mod-nat/description
+iptables extensions for IPv6-NAT targets.
+endef
+
 define Package/libiptc
 $(call Package/iptables/Default)
   SECTION:=libs
@@ -375,6 +386,10 @@ define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/xtables.pc $(1)/usr/lib/pkgconfig/
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/libip*tc.pc $(1)/usr/lib/pkgconfig/
+
+	# XXX: needed by firewall3
+	$(INSTALL_DIR) $(1)/usr/lib/iptables
+	$(CP) $(PKG_BUILD_DIR)/extensions/libext*.a $(1)/usr/lib/iptables/
 endef
 
 define Package/iptables/install
@@ -443,6 +458,7 @@ $(eval $(call BuildPlugin,iptables-mod-tproxy,$(IPT_TPROXY-m)))
 $(eval $(call BuildPlugin,iptables-mod-tee,$(IPT_TEE-m)))
 $(eval $(call BuildPlugin,iptables-mod-u32,$(IPT_U32-m)))
 $(eval $(call BuildPackage,ip6tables))
+$(eval $(call BuildPlugin,ip6tables-mod-nat,$(IPT_NAT6-m)))
 $(eval $(call BuildPackage,libiptc))
 $(eval $(call BuildPackage,libip4tc))
 $(eval $(call BuildPackage,libip6tc))

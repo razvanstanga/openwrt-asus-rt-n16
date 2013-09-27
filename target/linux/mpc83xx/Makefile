@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 ARCH:=powerpc
 BOARD:=mpc83xx
 BOARDNAME:=Freescale MPC83xx
-CFLAGS:=-Os -pipe -fno-caller-saves -mcpu=603e
+CPU_TYPE:=603e
 FEATURES:=squashfs targz
 MAINTAINER:=Imre Kaloz <kaloz@openwrt.org>
 
@@ -22,5 +22,7 @@ DEFAULT_PACKAGES += kmod-via-velocity
 define Target/Description
 	Build firmware images for Freescale MPC83xx based boards (eg. RouterBoard 600).
 endef
+
+KERNELNAME:="uImage"
 
 $(eval $(call BuildTarget))

@@ -12,7 +12,7 @@
 	memory@0 {
 		reg = <0x0 0x2000000>;
 	};
-	
+
 	localbus@10000000 {
 		cfi@0 {
 			compatible = "lantiq,nor";
@@ -32,12 +32,12 @@
 			};
 
 			partition@20000 {
-				label = "linux";
+				label = "firmware";
 				reg = <0x80000 0x3d0000>;
 			};
 		};
 	};
-	
+
 	pinmux0 {
 		compatible = "lantiq,pinctrl-falcon";
 		pinctrl-names = "default";
