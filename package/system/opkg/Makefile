@@ -11,7 +11,7 @@ include $(INCLUDE_DIR)/version.mk
 PKG_NAME:=opkg
 PKG_REV:=618
 PKG_VERSION:=$(PKG_REV)
-PKG_RELEASE:=4
+PKG_RELEASE:=5
 
 PKG_SOURCE_PROTO:=svn
 PKG_SOURCE_VERSION:=$(PKG_REV)
@@ -90,7 +90,7 @@ CONFIGURE_ARGS += \
 	--with-opkglockfile=/var/lock/opkg.lock
 
 ifeq ($(BUILD_VARIANT),smime)
-	CONFIGURE_ARGS += --enable-openssl
+	CONFIGURE_ARGS += --enable-openssl --enable-sha256
 endif
 
 MAKE_FLAGS = \
@@ -109,8 +109,12 @@ define Package/opkg/Default/install
 endef
 
 Package/opkg/install = $(call Package/opkg/Default/install,$(1),)
-Package/opkg-smime/install = $(call Package/opkg/Default/install,$(1),-smime)
 
+define Package/opkg-smime/install
+	$(call Package/opkg/Default/install,$(1),-smime)
+	$(INSTALL_DIR) $(1)/etc/ssl/certs
+	$(if $(CONFIG_OPKGSMIME_CERT),$(INSTALL_DATA) $(call qstrip,$(CONFIG_OPKGSMIME_CERT)) $(1)/etc/ssl/certs/opkg.pem,)
+endef
 
 define Build/InstallDev
 	mkdir -p $(1)/usr/include

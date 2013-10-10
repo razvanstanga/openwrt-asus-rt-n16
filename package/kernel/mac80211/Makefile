@@ -756,8 +756,10 @@ define KernelPackage/iwlagn
   $(call KernelPackage/mac80211/Default)
   DEPENDS:= +kmod-mac80211 @PCI_SUPPORT +@DRIVER_11N_SUPPORT
   TITLE:=Intel AGN Wireless support
-  FILES:=$(PKG_BUILD_DIR)/drivers/net/wireless/iwlwifi/iwlwifi.ko
-  AUTOLOAD:=$(call AutoProbe,iwlwifi)
+  FILES:= \
+	$(PKG_BUILD_DIR)/drivers/net/wireless/iwlwifi/iwlwifi.ko \
+	$(PKG_BUILD_DIR)/drivers/net/wireless/iwlwifi/dvm/iwldvm.ko
+  AUTOLOAD:=$(call AutoProbe,iwlwifi iwldvm)
   MENU:=1
 endef
 
@@ -1348,7 +1350,8 @@ config-y += B43LEGACY_DMA_MODE
 
 config-$(call config_package,brcmutil) += BRCMUTIL
 config-$(call config_package,brcmsmac) += BRCMSMAC
-config-$(call config_package,brcmfmac) += BRCMFMAC BRCMFMAC_USB
+config-$(call config_package,brcmfmac) += BRCMFMAC
+config-y += BRCMFMAC_USB
 config-$(CONFIG_PACKAGE_BRCM80211_DEBUG) += BRCMDBG
 
 config-$(call config_package,mac80211-hwsim) += MAC80211_HWSIM
@@ -1378,7 +1381,7 @@ config-y += RT2800USB_RT33XX RT2800USB_RT35XX RT2800USB_RT3573 RT2800USB_RT53XX 
 config-$(call config_package,iwl-legacy) += IWLEGACY
 config-$(call config_package,iwl3945) += IWL3945
 config-$(call config_package,iwl4965) += IWL4965
-config-$(call config_package,iwlagn) += IWLWIFI
+config-$(call config_package,iwlagn) += IWLWIFI IWLDVM
 
 config-$(call config_package,net-libipw) += LIBIPW
 config-$(call config_package,net-ipw2100) += IPW2100
@@ -1401,7 +1404,8 @@ config-$(call config_package,libertas-usb) += LIBERTAS LIBERTAS_USB
 config-$(call config_package,mwl8k) += MWL8K
 config-$(call config_package,rtl8180) += RTL8180
 config-$(call config_package,rtl8187) += RTL8187
-config-$(call config_package,wl12xx) += WL_TI WLCORE WLCORE_SDIO WL12XX
+config-$(call config_package,wl12xx) += WLCORE WLCORE_SDIO WL12XX
+config-y += WL_TI
 config-$(call config_package,zd1211rw) += ZD1211RW
 
 config-$(call config_package,rtlwifi) += RTL_CARDS RTLWIFI
