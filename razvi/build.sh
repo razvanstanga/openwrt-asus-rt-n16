@@ -25,7 +25,7 @@ cp ./razvi/feeds.conf.default ./
 ./scripts/feeds update packagesother
 ./scripts/feeds install exfat
 
-cp ./razvi/opkg.conf package/opkg/files/
+cp ./razvi/opkg.conf package/system/opkg/files
 
 # change trx_max_len
 if grep -q "0x920000" ./tools/firmware-utils/src/trx.c; then
@@ -36,3 +36,4 @@ else
 fi
 
 cp ./razvi/config.rt-n16 ./.config
+
