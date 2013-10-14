@@ -35,7 +35,7 @@ ifeq ($(CONFIG_JFFS2_LZMA),y)
   JFFS2OPTS += -X lzma --compression-mode=size
 endif
 ifneq ($(CONFIG_JFFS2_RTIME),y)
-  JFFS2OPTS +=  -x rtime
+  JFFS2OPTS += -x rtime
 endif
 ifneq ($(CONFIG_JFFS2_ZLIB),y)
   JFFS2OPTS += -x zlib
@@ -82,6 +82,11 @@ else
   endef
 endif
 
+define Image/BuildKernel/MkuImageARM
+	mkimage -A arm -O linux -T kernel -a $(1) -C none -e $(1) \
+		-n 'ARM OpenWrt Linux-$(LINUX_VERSION)' -d $(2) $(3)
+endef
+
 define Image/mkfs/jffs2/sub
 		# FIXME: removing this line will cause strange behaviour in the foreach loop below
 		$(STAGING_DIR_HOST)/bin/mkfs.jffs2 $(3) --pad -e $(patsubst %k,%KiB,$(1)) -o $(KDIR)/root.jffs2-$(2) -d $(TARGET_DIR) -v 2>&1 1>/dev/null | awk '/^.+$$$$/'
@@ -115,9 +120,13 @@ endif
 
 ifneq ($(CONFIG_TARGET_ROOTFS_UBIFS),)
     define Image/mkfs/ubifs
-		$(CP) ./ubinize.cfg $(KDIR)
+
+        ifneq ($($(PROFILE)_UBIFS_OPTS)$(UBIFS_OPTS),)
 		$(STAGING_DIR_HOST)/bin/mkfs.ubifs \
-			$(UBIFS_OPTS) \
+			$(if $($(PROFILE)_UBIFS_OPTS), \
+				$(shell echo $($(PROFILE)_UBIFS_OPTS)), \
+				$(shell echo $(UBIFS_OPTS)), \
+			) \
 			$(if $(CONFIG_TARGET_UBIFS_FREE_SPACE_FIXUP),--space-fixup) \
 			$(if $(CONFIG_TARGET_UBIFS_COMPRESSION_NONE),--force-compr=none) \
 			$(if $(CONFIG_TARGET_UBIFS_COMPRESSION_LZO),--force-compr=lzo) \
@@ -125,10 +134,22 @@ ifneq ($(CONFIG_TARGET_ROOTFS_UBIFS),)
 			--jrn-size=$(CONFIG_TARGET_UBIFS_JOURNAL_SIZE) \
 			-o $(KDIR)/root.ubifs \
 			-d $(TARGET_DIR)
-		$(call Image/Build,ubifs)
-		(cd $(KDIR); \
-		$(STAGING_DIR_HOST)/bin/ubinize $(UBINIZE_OPTS) -o $(KDIR)/root.ubi ubinize.cfg)
-		$(call Image/Build,ubi)
+        endif
+	$(call Image/Build,ubifs)
+
+        ifneq ($($(PROFILE)_UBI_OPTS)$(UBI_OPTS),)
+		$(CP) ./ubinize.cfg $(KDIR)
+		( cd $(KDIR); \
+		$(STAGING_DIR_HOST)/bin/ubinize \
+			$(if $($(PROFILE)_UBI_OPTS), \
+				$(shell echo $($(PROFILE)_UBI_OPTS)), \
+				$(shell echo $(UBI_OPTS)), \
+			) \
+			-o $(KDIR)/root.ubi \
+			ubinize.cfg \
+		)
+        endif
+	$(call Image/Build,ubi)
     endef
 endif
 
@@ -141,7 +162,7 @@ endif
 ifneq ($(CONFIG_TARGET_ROOTFS_TARGZ),)
   define Image/mkfs/targz
 		# Preserve permissions (-p) when building as non-root user
-		$(TAR) -czpf $(BIN_DIR)/$(IMG_PREFIX)-rootfs.tar.gz --numeric-owner --owner=0 --group=0 -C $(TARGET_DIR)/ .
+		$(TAR) -czpf $(BIN_DIR)/$(IMG_PREFIX)$(if $(PROFILE),-$(PROFILE))-rootfs.tar.gz --numeric-owner --owner=0 --group=0 -C $(TARGET_DIR)/ .
   endef
 endif
 

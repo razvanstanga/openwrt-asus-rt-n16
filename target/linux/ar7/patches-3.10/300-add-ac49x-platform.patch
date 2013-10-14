@@ -46,7 +46,7 @@
  
  config ATH79
  	bool "Atheros AR71XX/AR724X/AR913X based boards"
-@@ -838,6 +838,7 @@ config NLM_XLP_BOARD
+@@ -839,6 +839,7 @@ config NLM_XLP_BOARD
  endchoice
  
  source "arch/mips/alchemy/Kconfig"
