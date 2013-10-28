@@ -14,10 +14,10 @@ Signed-off-by: John Crispin <blogic@openwrt.org>
  6 files changed, 385 insertions(+), 19 deletions(-)
  create mode 100644 drivers/pinctrl/pinctrl-rt2880.c
 
-Index: linux-3.10.13/arch/mips/Kconfig
+Index: linux-3.10.17/arch/mips/Kconfig
 ===================================================================
---- linux-3.10.13.orig/arch/mips/Kconfig	2013-10-02 16:59:28.532051276 +0200
-+++ linux-3.10.13/arch/mips/Kconfig	2013-10-02 16:59:29.440051316 +0200
+--- linux-3.10.17.orig/arch/mips/Kconfig	2013-10-26 17:19:49.094708911 +0200
++++ linux-3.10.17/arch/mips/Kconfig	2013-10-26 17:19:49.926708932 +0200
 @@ -446,6 +446,8 @@
  	select HAVE_MACH_CLKDEV
  	select CLKDEV_LOOKUP
@@ -27,10 +27,10 @@ Index: linux-3.10.13/arch/mips/Kconfig
  
  config SGI_IP22
  	bool "SGI IP22 (Indy/Indigo2)"
-Index: linux-3.10.13/drivers/pinctrl/Kconfig
+Index: linux-3.10.17/drivers/pinctrl/Kconfig
 ===================================================================
---- linux-3.10.13.orig/drivers/pinctrl/Kconfig	2013-09-27 02:18:49.000000000 +0200
-+++ linux-3.10.13/drivers/pinctrl/Kconfig	2013-10-02 16:59:29.440051316 +0200
+--- linux-3.10.17.orig/drivers/pinctrl/Kconfig	2013-10-18 19:44:19.000000000 +0200
++++ linux-3.10.17/drivers/pinctrl/Kconfig	2013-10-26 17:19:49.930708931 +0200
 @@ -114,6 +114,11 @@
  	select PINMUX
  	select PINCONF
@@ -43,10 +43,10 @@ Index: linux-3.10.13/drivers/pinctrl/Kconfig
  config PINCTRL_FALCON
  	bool
  	depends on SOC_FALCON
-Index: linux-3.10.13/drivers/pinctrl/Makefile
+Index: linux-3.10.17/drivers/pinctrl/Makefile
 ===================================================================
---- linux-3.10.13.orig/drivers/pinctrl/Makefile	2013-09-27 02:18:49.000000000 +0200
-+++ linux-3.10.13/drivers/pinctrl/Makefile	2013-10-02 16:59:29.440051316 +0200
+--- linux-3.10.17.orig/drivers/pinctrl/Makefile	2013-10-18 19:44:19.000000000 +0200
++++ linux-3.10.17/drivers/pinctrl/Makefile	2013-10-26 17:19:49.930708931 +0200
 @@ -45,6 +45,7 @@
  obj-$(CONFIG_PINCTRL_S3C64XX)	+= pinctrl-s3c64xx.o
  obj-$(CONFIG_PINCTRL_XWAY)	+= pinctrl-xway.o
@@ -55,11 +55,11 @@ Index: linux-3.10.13/drivers/pinctrl/Makefile
  
  obj-$(CONFIG_PLAT_ORION)        += mvebu/
  obj-$(CONFIG_ARCH_SHMOBILE)	+= sh-pfc/
-Index: linux-3.10.13/drivers/pinctrl/pinctrl-rt2880.c
+Index: linux-3.10.17/drivers/pinctrl/pinctrl-rt2880.c
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-3.10.13/drivers/pinctrl/pinctrl-rt2880.c	2013-10-02 18:24:18.556268869 +0200
-@@ -0,0 +1,456 @@
++++ linux-3.10.17/drivers/pinctrl/pinctrl-rt2880.c	2013-10-27 16:22:50.132754888 +0100
+@@ -0,0 +1,466 @@
 +/*
 + *  linux/drivers/pinctrl/pinctrl-rt2880.c
 + *
@@ -283,7 +283,8 @@ Index: linux-3.10.13/drivers/pinctrl/pinctrl-rt2880.c
 +	if (func == 0) {
 +		int i;
 +
-+		mode |= p->groups[group].mask << p->groups[group].shift;
++
++		mode |= p->groups[group].gpio << p->groups[group].shift;
 +		/* mark the pins as gpio */
 +		for (i = 0; i < p->groups[group].func[0].pin_count; i++)
 +			p->gpio[p->groups[group].func[0].pins[i]] = 1;
@@ -291,6 +292,7 @@ Index: linux-3.10.13/drivers/pinctrl/pinctrl-rt2880.c
 +		mode |= p->func[func]->value << p->groups[group].shift;
 +	}
 +	rt_sysc_w32(mode, SYSC_REG_GPIO_MODE);
++
 +
 +	return 0;
 +}
@@ -370,8 +372,6 @@ Index: linux-3.10.13/drivers/pinctrl/pinctrl-rt2880.c
 +	/* add remaining functions */
 +	for (i = 0; i < p->group_count; i++) {
 +		for (j = 0; j < p->groups[i].func_count; j++) {
-+			int k;
-+
 +			f[c] = &p->groups[i].func[j];
 +			f[c]->groups = devm_kzalloc(p->dev, sizeof(int), GFP_KERNEL);
 +			f[c]->groups[0] = i;
@@ -412,6 +412,15 @@ Index: linux-3.10.13/drivers/pinctrl/pinctrl-rt2880.c
 +	if (!p->pads || !p->gpio ) {
 +		dev_err(p->dev, "Failed to allocate gpio data\n");
 +		return -ENOMEM;
++	}
++
++	memset(p->gpio, 1, sizeof(uint8_t) * p->max_pins);
++	for (i = 0; i < p->func_count; i++) {
++		if (!p->func[i]->pin_count)
++			continue;
++
++		for (j = 0; j < p->func[i]->pin_count; j++)
++			p->gpio[p->func[i]->pins[j]] = 0;
 +	}
 +
 +	/* pin 0 is always a gpio */
@@ -489,6 +498,7 @@ Index: linux-3.10.13/drivers/pinctrl/pinctrl-rt2880.c
 +		sprintf(name, "pio");
 +		range->npins = __be32_to_cpu(*ngpio);
 +		range->base = __be32_to_cpu(*gpiobase);
++		range->pin_base = range->base;
 +		pinctrl_add_gpio_range(dev, range);
 +	}
 +
@@ -516,11 +526,11 @@ Index: linux-3.10.13/drivers/pinctrl/pinctrl-rt2880.c
 +}
 +
 +core_initcall_sync(rt2880_pinmux_init);
-Index: linux-3.10.13/arch/mips/include/asm/mach-ralink/pinmux.h
+Index: linux-3.10.17/arch/mips/include/asm/mach-ralink/pinmux.h
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-3.10.13/arch/mips/include/asm/mach-ralink/pinmux.h	2013-10-02 16:59:29.444051317 +0200
-@@ -0,0 +1,47 @@
++++ linux-3.10.17/arch/mips/include/asm/mach-ralink/pinmux.h	2013-10-27 07:28:38.999991133 +0100
+@@ -0,0 +1,53 @@
 +/*
 + *  This program is free software; you can redistribute it and/or modify
 + *  it under the terms of the GNU General Public License version 2 as
@@ -535,7 +545,12 @@ Index: linux-3.10.13/arch/mips/include/asm/mach-ralink/pinmux.h
 +#define FUNC(name, value, pin_first, pin_count) { name, value, pin_first, pin_count }
 +#define GRP(_name, _func, _mask, _shift) \
 +	{ .name = _name, .mask = _mask, .shift = _shift, \
-+	  .func = _func, \
++	  .func = _func, .gpio = _mask, \
++	  .func_count = ARRAY_SIZE(_func) }
++
++#define GRP_G(_name, _func, _mask, _gpio, _shift) \
++	{ .name = _name, .mask = _mask, .shift = _shift, \
++	  .func = _func, .gpio = _gpio, \
 +	  .func_count = ARRAY_SIZE(_func) }
 +
 +struct rt2880_pmx_group;
@@ -560,6 +575,7 @@ Index: linux-3.10.13/arch/mips/include/asm/mach-ralink/pinmux.h
 +
 +	const u32 shift;
 +	const char mask;
++	const char gpio;
 +
 +	struct rt2880_pmx_func *func;
 +	int func_count;
@@ -568,10 +584,10 @@ Index: linux-3.10.13/arch/mips/include/asm/mach-ralink/pinmux.h
 +extern struct rt2880_pmx_group *rt2880_pinmux_data;
 +
 +#endif
-Index: linux-3.10.13/arch/mips/ralink/mt7620.c
+Index: linux-3.10.17/arch/mips/ralink/mt7620.c
 ===================================================================
---- linux-3.10.13.orig/arch/mips/ralink/mt7620.c	2013-10-02 16:59:28.912051293 +0200
-+++ linux-3.10.13/arch/mips/ralink/mt7620.c	2013-10-02 18:23:35.940267055 +0200
+--- linux-3.10.17.orig/arch/mips/ralink/mt7620.c	2013-10-26 17:19:49.462708921 +0200
++++ linux-3.10.17/arch/mips/ralink/mt7620.c	2013-10-27 13:33:02.148512122 +0100
 @@ -17,6 +17,7 @@
  #include <asm/mipsregs.h>
  #include <asm/mach-ralink/ralink_regs.h>
@@ -580,7 +596,7 @@ Index: linux-3.10.13/arch/mips/ralink/mt7620.c
  
  #include "common.h"
  
-@@ -48,118 +49,40 @@
+@@ -48,118 +49,58 @@
  /* the pll dividers */
  static u32 mt7620_clk_divider[] = { 2, 3, 4, 8 };
  
@@ -649,6 +665,14 @@ Index: linux-3.10.13/arch/mips/ralink/mt7620.c
 -	}, {0}
 +static struct rt2880_pmx_func i2c_grp[] =  { FUNC("i2c", 0, 1, 2) };
 +static struct rt2880_pmx_func spi_grp[] = { FUNC("spi", 0, 3, 4) };
++static struct rt2880_pmx_func uartlite_grp[] = { FUNC("uartlite", 0, 15, 2) };
++static struct rt2880_pmx_func mdio_grp[] = { FUNC("mdio", 0, 22, 2) };
++static struct rt2880_pmx_func rgmii1_grp[] = { FUNC("rgmii1", 0, 24, 12) };
++static struct rt2880_pmx_func refclk_grp[] = { FUNC("spi refclk", 0, 37, 3) };
++static struct rt2880_pmx_func ephy_grp[] = { FUNC("ephy", 0, 40, 5) };
++static struct rt2880_pmx_func rgmii2_grp[] = { FUNC("rgmii2", 0, 60, 12) };
++static struct rt2880_pmx_func wled_grp[] = { FUNC("wled", 0, 72, 1) };
++static struct rt2880_pmx_func pa_grp[] = { FUNC("pa", 0, 18, 4) };
 +static struct rt2880_pmx_func uartf_grp[] = {
 +	FUNC("uartf", MT7620_GPIO_MODE_UARTF, 7, 8),
 +	FUNC("pcm uartf", MT7620_GPIO_MODE_PCM_UARTF, 7, 8),
@@ -699,50 +723,58 @@ Index: linux-3.10.13/arch/mips/ralink/mt7620.c
 -		.name = "gpio",
 -		.mask = MT7620_GPIO_MODE_GPIO,
 -	}, {0}
--};
--
++static struct rt2880_pmx_func wdt_grp[] = {
++	FUNC("wdt rst", 0, 17, 1),
++	FUNC("wdt refclk", 0, 17, 1),
++	};
++static struct rt2880_pmx_func pcie_rst_grp[] = {
++	FUNC("pcie rst", MT7620_GPIO_MODE_PCIE_RST, 36, 1),
++	FUNC("pcie refclk", MT7620_GPIO_MODE_PCIE_REF, 36, 1)
++};
++static struct rt2880_pmx_func nd_sd_grp[] = {
++	FUNC("nand", MT7620_GPIO_MODE_NAND, 45, 15),
++	FUNC("sd", MT7620_GPIO_MODE_SD, 45, 15)
+ };
+ 
 -struct ralink_pinmux rt_gpio_pinmux = {
 -	.mode = mode_mux,
 -	.uart = uart_mux,
 -	.uart_shift = MT7620_GPIO_MODE_UART0_SHIFT,
 -	.uart_mask = MT7620_GPIO_MODE_UART0_MASK,
-+static struct rt2880_pmx_func uartlite_grp[] = { FUNC("uartlite", 0, 15, 2) };
-+static struct rt2880_pmx_func wdt_grp[] = { FUNC("wdt", 0, 17, 1) };
-+static struct rt2880_pmx_func mdio_grp[] = { FUNC("mdio", 0, 22, 2) };
-+static struct rt2880_pmx_func rgmii1_grp[] = { FUNC("rgmii1", 0, 24, 12) };
-+static struct rt2880_pmx_func refclk_grp[] = { FUNC("spi refclk", 0, 37, 3) };
-+static struct rt2880_pmx_func ephy_grp[] = { FUNC("ephy", 0, 40, 5) };
-+static struct rt2880_pmx_func rgmii2_grp[] = { FUNC("rgmii2", 0, 60, 12) };
-+static struct rt2880_pmx_func wled_grp[] = { FUNC("wled", 0, 72, 1) };
-+
 +static struct rt2880_pmx_group mt7620a_pinmux_data[] = {
 +	GRP("i2c", i2c_grp, 1, MT7620_GPIO_MODE_I2C),
++	GRP("uartf", uartf_grp, MT7620_GPIO_MODE_UART0_MASK,
++		MT7620_GPIO_MODE_UART0_SHIFT),
 +	GRP("spi", spi_grp, 1, MT7620_GPIO_MODE_SPI),
 +	GRP("uartlite", uartlite_grp, 1, MT7620_GPIO_MODE_UART1),
-+	GRP("wdt", wdt_grp, 1, MT7620_GPIO_MODE_WDT),
++	GRP_G("wdt", wdt_grp, MT7620_GPIO_MODE_WDT_MASK,
++		MT7620_GPIO_MODE_WDT_GPIO, MT7620_GPIO_MODE_WDT_SHIFT),
 +	GRP("mdio", mdio_grp, 1, MT7620_GPIO_MODE_MDIO),
 +	GRP("rgmii1", rgmii1_grp, 1, MT7620_GPIO_MODE_RGMII1),
 +	GRP("spi refclk", refclk_grp, 1, MT7620_GPIO_MODE_SPI_REF_CLK),
++	GRP_G("pcie", pcie_rst_grp, MT7620_GPIO_MODE_PCIE_MASK,
++		MT7620_GPIO_MODE_PCIE_GPIO, MT7620_GPIO_MODE_PCIE_SHIFT),
++	GRP_G("nd_sd", nd_sd_grp, MT7620_GPIO_MODE_ND_SD_MASK,
++		MT7620_GPIO_MODE_ND_SD_GPIO, MT7620_GPIO_MODE_ND_SD_SHIFT),
 +	GRP("rgmii2", rgmii2_grp, 1, MT7620_GPIO_MODE_RGMII2),
-+	GRP("ephy", ephy_grp, 1, MT7620_GPIO_MODE_EPHY),
 +	GRP("wled", wled_grp, 1, MT7620_GPIO_MODE_WLED),
-+	GRP("uartf", uartf_grp, MT7620_GPIO_MODE_UART0_MASK,
-+		MT7620_GPIO_MODE_UART0_SHIFT),
++	GRP("ephy", ephy_grp, 1, MT7620_GPIO_MODE_EPHY),
++	GRP("pa", pa_grp, 1, MT7620_GPIO_MODE_PA),
 +	{ 0 }
  };
  
  void __init ralink_clk_init(void)
-@@ -281,4 +204,6 @@
+@@ -281,4 +222,6 @@
  		(pmu0 & PMU_SW_SET) ? ("sw") : ("hw"));
  	pr_info("Digital PMU set to %s control\n",
  		(pmu1 & DIG_SW_SEL) ? ("sw") : ("hw"));
 +
 +	rt2880_pinmux_data = mt7620a_pinmux_data;
  }
-Index: linux-3.10.13/arch/mips/ralink/rt305x.c
+Index: linux-3.10.17/arch/mips/ralink/rt305x.c
 ===================================================================
---- linux-3.10.13.orig/arch/mips/ralink/rt305x.c	2013-10-02 16:59:29.140051302 +0200
-+++ linux-3.10.13/arch/mips/ralink/rt305x.c	2013-10-02 16:59:29.444051317 +0200
+--- linux-3.10.17.orig/arch/mips/ralink/rt305x.c	2013-10-26 17:19:49.722708926 +0200
++++ linux-3.10.17/arch/mips/ralink/rt305x.c	2013-10-27 16:23:29.836755834 +0100
 @@ -17,90 +17,71 @@
  #include <asm/mipsregs.h>
  #include <asm/mach-ralink/ralink_regs.h>
@@ -802,7 +834,7 @@ Index: linux-3.10.13/arch/mips/ralink/rt305x.c
 +	FUNC("gpio i2s", RT305X_GPIO_MODE_GPIO_I2S, 7, 4),
 +};
 +static struct rt2880_pmx_func uartlite_func[] = { FUNC("uartlite", 0, 15, 2) };
-+static struct rt2880_pmx_func jtag_func[] = { FUNC("jtag", 0, 17, 25) };
++static struct rt2880_pmx_func jtag_func[] = { FUNC("jtag", 0, 17, 5) };
 +static struct rt2880_pmx_func mdio_func[] = { FUNC("mdio", 0, 22, 2) };
 +static struct rt2880_pmx_func rt5350_led_func[] = { FUNC("led", 0, 22, 5) };
 +static struct rt2880_pmx_func sdram_func[] = { FUNC("sdram", 0, 24, 16) };
@@ -922,10 +954,10 @@ Index: linux-3.10.13/arch/mips/ralink/rt305x.c
 +		rt2880_pinmux_data = rt3352_pinmux_data;
  	}
  }
-Index: linux-3.10.13/arch/mips/include/asm/mach-ralink/rt305x.h
+Index: linux-3.10.17/arch/mips/include/asm/mach-ralink/rt305x.h
 ===================================================================
---- linux-3.10.13.orig/arch/mips/include/asm/mach-ralink/rt305x.h	2013-09-27 02:18:49.000000000 +0200
-+++ linux-3.10.13/arch/mips/include/asm/mach-ralink/rt305x.h	2013-10-02 16:59:29.444051317 +0200
+--- linux-3.10.17.orig/arch/mips/include/asm/mach-ralink/rt305x.h	2013-10-18 19:44:19.000000000 +0200
++++ linux-3.10.17/arch/mips/include/asm/mach-ralink/rt305x.h	2013-10-26 17:19:49.934708931 +0200
 @@ -125,24 +125,28 @@
  #define RT305X_GPIO_GE0_TXD0		40
  #define RT305X_GPIO_GE0_RXCLK		51
@@ -970,10 +1002,10 @@ Index: linux-3.10.13/arch/mips/include/asm/mach-ralink/rt305x.h
  
  #define RT3352_SYSC_REG_SYSCFG0		0x010
  #define RT3352_SYSC_REG_SYSCFG1         0x014
-Index: linux-3.10.13/arch/mips/include/asm/mach-ralink/mt7620.h
+Index: linux-3.10.17/arch/mips/include/asm/mach-ralink/mt7620.h
 ===================================================================
---- linux-3.10.13.orig/arch/mips/include/asm/mach-ralink/mt7620.h	2013-10-02 16:59:28.708051287 +0200
-+++ linux-3.10.13/arch/mips/include/asm/mach-ralink/mt7620.h	2013-10-02 16:59:29.444051317 +0200
+--- linux-3.10.17.orig/arch/mips/include/asm/mach-ralink/mt7620.h	2013-10-26 17:19:49.250708916 +0200
++++ linux-3.10.17/arch/mips/include/asm/mach-ralink/mt7620.h	2013-10-27 13:13:24.892484072 +0100
 @@ -59,7 +59,6 @@
  #define MT7620_DDR2_SIZE_MIN		32
  #define MT7620_DDR2_SIZE_MAX		256
@@ -982,7 +1014,7 @@ Index: linux-3.10.13/arch/mips/include/asm/mach-ralink/mt7620.h
  #define MT7620_GPIO_MODE_UART0_SHIFT	2
  #define MT7620_GPIO_MODE_UART0_MASK	0x7
  #define MT7620_GPIO_MODE_UART0(x)	((x) << MT7620_GPIO_MODE_UART0_SHIFT)
-@@ -71,15 +70,17 @@
+@@ -71,15 +70,35 @@
  #define MT7620_GPIO_MODE_GPIO_UARTF	0x5
  #define MT7620_GPIO_MODE_GPIO_I2S	0x6
  #define MT7620_GPIO_MODE_GPIO		0x7
@@ -997,6 +1029,24 @@ Index: linux-3.10.13/arch/mips/include/asm/mach-ralink/mt7620.h
 -#define MT7620_GPIO_MODE_EPHY		BIT(15)
 -#define MT7620_GPIO_MODE_WDT		BIT(22)
 +
++#define MT7620_GPIO_MODE_NAND		0
++#define MT7620_GPIO_MODE_SD		1
++#define MT7620_GPIO_MODE_ND_SD_GPIO	2
++#define MT7620_GPIO_MODE_ND_SD_MASK	0x3
++#define MT7620_GPIO_MODE_ND_SD_SHIFT	18
++
++#define MT7620_GPIO_MODE_PCIE_RST	0
++#define MT7620_GPIO_MODE_PCIE_REF	1
++#define MT7620_GPIO_MODE_PCIE_GPIO	2
++#define MT7620_GPIO_MODE_PCIE_MASK	0x3
++#define MT7620_GPIO_MODE_PCIE_SHIFT	16
++
++#define MT7620_GPIO_MODE_WDT_RST	0
++#define MT7620_GPIO_MODE_WDT_REF	1
++#define MT7620_GPIO_MODE_WDT_GPIO	2
++#define MT7620_GPIO_MODE_WDT_MASK	0x3
++#define MT7620_GPIO_MODE_WDT_SHIFT	21
++
 +#define MT7620_GPIO_MODE_I2C		0
 +#define MT7620_GPIO_MODE_UART1		5
 +#define MT7620_GPIO_MODE_MDIO		8
@@ -1007,13 +1057,13 @@ Index: linux-3.10.13/arch/mips/include/asm/mach-ralink/mt7620.h
 +#define MT7620_GPIO_MODE_WLED		13
 +#define MT7620_GPIO_MODE_JTAG		15
 +#define MT7620_GPIO_MODE_EPHY		15
-+#define MT7620_GPIO_MODE_WDT		22
++#define MT7620_GPIO_MODE_PA		20
  
  #endif
-Index: linux-3.10.13/arch/mips/include/asm/mach-ralink/rt3883.h
+Index: linux-3.10.17/arch/mips/include/asm/mach-ralink/rt3883.h
 ===================================================================
---- linux-3.10.13.orig/arch/mips/include/asm/mach-ralink/rt3883.h	2013-09-27 02:18:49.000000000 +0200
-+++ linux-3.10.13/arch/mips/include/asm/mach-ralink/rt3883.h	2013-10-02 16:59:29.444051317 +0200
+--- linux-3.10.17.orig/arch/mips/include/asm/mach-ralink/rt3883.h	2013-10-18 19:44:19.000000000 +0200
++++ linux-3.10.17/arch/mips/include/asm/mach-ralink/rt3883.h	2013-10-26 17:19:49.934708931 +0200
 @@ -112,8 +112,6 @@
  #define RT3883_CLKCFG1_PCI_CLK_EN	BIT(19)
  #define RT3883_CLKCFG1_UPHY0_CLK_EN	BIT(18)
@@ -1044,10 +1094,10 @@ Index: linux-3.10.13/arch/mips/include/asm/mach-ralink/rt3883.h
  #define RT3883_GPIO_MODE_PCI_SHIFT	11
  #define RT3883_GPIO_MODE_PCI_MASK	0x7
  #define RT3883_GPIO_MODE_PCI		(RT3883_GPIO_MODE_PCI_MASK << RT3883_GPIO_MODE_PCI_SHIFT)
-Index: linux-3.10.13/arch/mips/ralink/common.h
+Index: linux-3.10.17/arch/mips/ralink/common.h
 ===================================================================
---- linux-3.10.13.orig/arch/mips/ralink/common.h	2013-10-02 16:59:28.532051276 +0200
-+++ linux-3.10.13/arch/mips/ralink/common.h	2013-10-02 16:59:29.444051317 +0200
+--- linux-3.10.17.orig/arch/mips/ralink/common.h	2013-10-26 17:19:49.094708911 +0200
++++ linux-3.10.17/arch/mips/ralink/common.h	2013-10-26 17:19:49.934708931 +0200
 @@ -11,25 +11,6 @@
  
  #define RAMIPS_SYS_TYPE_LEN	32
@@ -1074,10 +1124,10 @@ Index: linux-3.10.13/arch/mips/ralink/common.h
  struct ralink_soc_info {
  	unsigned char sys_type[RAMIPS_SYS_TYPE_LEN];
  	unsigned char *compatible;
-Index: linux-3.10.13/arch/mips/ralink/rt3883.c
+Index: linux-3.10.17/arch/mips/ralink/rt3883.c
 ===================================================================
---- linux-3.10.13.orig/arch/mips/ralink/rt3883.c	2013-09-27 02:18:49.000000000 +0200
-+++ linux-3.10.13/arch/mips/ralink/rt3883.c	2013-10-02 16:59:29.444051317 +0200
+--- linux-3.10.17.orig/arch/mips/ralink/rt3883.c	2013-10-18 19:44:19.000000000 +0200
++++ linux-3.10.17/arch/mips/ralink/rt3883.c	2013-10-27 16:23:36.824756002 +0100
 @@ -17,132 +17,50 @@
  #include <asm/mipsregs.h>
  #include <asm/mach-ralink/ralink_regs.h>
@@ -1191,7 +1241,7 @@ Index: linux-3.10.13/arch/mips/ralink/rt3883.c
 -		.mask = RT3883_GPIO_MODE_GPIO,
 -	}, {0}
 +static struct rt2880_pmx_func uartlite_func[] = { FUNC("uartlite", 0, 15, 2) };
-+static struct rt2880_pmx_func jtag_func[] = { FUNC("jtag", 0, 17, 25) };
++static struct rt2880_pmx_func jtag_func[] = { FUNC("jtag", 0, 17, 5) };
 +static struct rt2880_pmx_func mdio_func[] = { FUNC("mdio", 0, 22, 2) };
 +static struct rt2880_pmx_func lna_a_func[] = { FUNC("lna a", 0, 32, 3) };
 +static struct rt2880_pmx_func lna_g_func[] = { FUNC("lna a", 0, 35, 3) };
