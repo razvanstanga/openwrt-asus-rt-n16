@@ -13,7 +13,10 @@ PKG_VERSION:=2013.10
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_DISTNAME)-$(PKG_VERSION).tar.bz2
-PKG_SOURCE_URL:=ftp://ftp.denx.de/pub/u-boot
+PKG_SOURCE_URL:= \
+	http://mirror2.openwrt.org/sources \
+	ftp://ftp.denx.de/pub/u-boot
+
 PKG_MD5SUM:=a076a044b64371edc52f7e562b13f6b2
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/u-boot-$(PKG_VERSION)
@@ -72,6 +75,10 @@ endif
 ifneq ($(CONFIG_TARGET_lantiq),)
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
 	$(INSTALL_DATA) ./files/lantiq $(1)/etc/uci-defaults/30_uboot-envtools
+endif
+ifneq ($(CONFIG_TARGET_mxs),)
+	$(INSTALL_DIR) $(1)/etc/uci-defaults
+	$(INSTALL_BIN) ./files/mxs $(1)/etc/uci-defaults/30_uboot-envtools
 endif
 ifneq ($(CONFIG_TARGET_ramips),)
 	$(INSTALL_DIR) $(1)/etc/uci-defaults

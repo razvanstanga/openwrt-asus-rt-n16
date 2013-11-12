@@ -98,6 +98,7 @@ platform_check_image() {
 	ap96 | \
 	db120 | \
 	hornet-ub | \
+	bxu2000n-2-a1 | \
 	zcn-1523h-2 | \
 	zcn-1523h-5)
 		[ "$magic_long" != "68737173" -a "$magic_long" != "19852003" ] && {
@@ -189,6 +190,8 @@ platform_check_image() {
 	tl-mr3420 | \
 	tl-mr3420-v2 | \
 	tl-wa7510n | \
+	tl-wa750re | \
+	tl-wa850re | \
 	tl-wa901nd | \
 	tl-wa901nd-v2 | \
 	tl-wdr3500 | \

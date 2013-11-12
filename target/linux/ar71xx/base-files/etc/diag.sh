@@ -37,6 +37,9 @@ get_status_led() {
 	bullet-m | rocket-m | nano-m | nanostation-m)
 		status_led="ubnt:green:link4"
 		;;
+	bxu2000n-2-a1)
+		status_led="bhu:green:status"
+		;;
 	cap4200ag)
 		status_led="senao:green:pwr"
 		;;
@@ -80,6 +83,9 @@ get_status_led() {
 	mynet-n600)
 		status_led="wd:blue:power"
 		;;
+	mynet-rext)
+		status_led="wd:blue:power"
+		;;
 	mzk-w04nu | \
 	mzk-w300nh)
 		status_led="planex:green:status"
@@ -119,6 +125,12 @@ get_status_led() {
 		;;
 	tl-mr3020)
 		status_led="tp-link:green:wps"
+		;;
+	tl-wa750re)
+		status_led="tp-link:orange:re"
+		;;
+	tl-wa850re)
+		status_led="tp-link:blue:re"
 		;;
 	tl-mr3220 | \
 	tl-mr3220-v2 | \
@@ -187,6 +199,9 @@ get_status_led() {
 		;;
 	zcn-1523h-2 | zcn-1523h-5)
 		status_led="zcn-1523h:amber:init"
+		;;
+	wlr8100)
+		status_led="sitecom:amber:status"
 		;;
 	esac
 }

@@ -29,7 +29,8 @@ ap132)
 	ucidef_add_switch_vlan "switch0" "2" "0t 1"
 	;;
 
-ap136-010)
+ap136-010 |\
+wlr8100)
 	ucidef_set_interfaces_lan_wan "eth0" "eth1"
 	ucidef_add_switch "switch0" "1" "1"
 	ucidef_add_switch_vlan "switch0" "1" "0 1 2 3 4"
@@ -226,10 +227,13 @@ tl-mr13u |\
 tl-mr3020 |\
 tl-mr3040 |\
 tl-mr3040-v2 |\
+tl-wa750re |\
+tl-wa850re |\
 tl-wa901nd |\
 tl-wa901nd-v2 |\
 tl-wr703n |\
 wndap360 |\
+mynet-rext |\
 wp543)
 	ucidef_set_interface_lan "eth0"
 	;;

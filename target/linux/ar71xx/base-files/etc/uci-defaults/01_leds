@@ -32,6 +32,10 @@ ap113)
 	ucidef_set_led_usbdev "usb" "USB" "ap113:green:usb" "1-1"
 	;;
 
+bxu2000n-2-a1)
+	ucidef_set_led_wlan "wlan" "WLAN" "bhu:green:wlan" "phy0tpt"
+	;;
+
 cap4200ag)
 	ucidef_set_led_default "lan_green" "LAN_GREEN" "senao:green:lan" "1"
 	ucidef_set_led_wlan "wlan_amber" "WLAN_AMBER" "senao:amber:wlan" "phy0tpt"
@@ -98,6 +102,15 @@ mynet-n600)
 	ucidef_set_led_switch "lan4" "LAN4" "wd:green:lan4" "switch0" "0x04"
 	;;
 
+mynet-rext)
+	ucidef_set_led_netdev "lan" "LAN" "wd:blue:ethernet" "eth0"
+	ucidef_set_rssimon "wlan0" "40000" "1"
+	ucidef_set_led_rssi "rssilow" "RSSILOW" "wd:blue:quality1" "wlan0" "1" "40" "0" "6"
+	ucidef_set_led_rssi "rssimedium" "RSSIMEDIUM" "wd:blue:quality2" "wlan0" "30" "80" "-29" "5"
+	ucidef_set_led_rssi "rssihigh" "RSSIHIGH" "wd:blue:quality3" "wlan0" "70" "100" "-69" "8"
+	ucidef_set_led_wlan "wlan" "WLAN" "wd:blue:wireless" "phy0tpt"
+	;;
+
 mzk-w04u)
 	ucidef_set_led_usbdev "usb" "USB" "planex:green:usb" "1-1"
 	;;
@@ -162,6 +175,16 @@ tl-mr3420-v2)
 	ucidef_set_led_switch "lan4" "LAN4" "tp-link:green:lan4" "switch0" "0x02"
 	ucidef_set_led_wlan "wlan" "WLAN" "tp-link:green:wlan" "phy0tpt"
 	ucidef_set_led_usbdev "usb" "USB" "tp-link:green:3g" "1-1"
+	;;
+
+tl-wa750re)
+	ucidef_set_led_netdev "lan" "LAN" "tp-link:orange:lan" "eth0"
+	ucidef_set_led_wlan "wlan" "WLAN" "tp-link:orange:wlan" "phy0tpt"
+	;;
+
+tl-wa850re)
+	ucidef_set_led_netdev "lan" "LAN" "tp-link:blue:lan" "eth0"
+	ucidef_set_led_wlan "wlan" "WLAN" "tp-link:blue:wlan" "phy0tpt"
 	;;
 
 tl-wa901nd)

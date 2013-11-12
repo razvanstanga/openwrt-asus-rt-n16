@@ -240,6 +240,7 @@ endef
 define KernelPackage/rt2x00-mmio
 $(call KernelPackage/rt2x00/Default)
   DEPENDS+= @(PCI_SUPPORT||TARGET_ramips) +kmod-rt2x00-lib +kmod-eeprom-93cx6
+  HIDDEN:=1
   TITLE+= (MMIO)
   FILES:= $(PKG_BUILD_DIR)/drivers/net/wireless/rt2x00/rt2x00mmio.ko
 endef
@@ -247,6 +248,7 @@ endef
 define KernelPackage/rt2x00-pci
 $(call KernelPackage/rt2x00/Default)
   DEPENDS+= @PCI_SUPPORT +kmod-rt2x00-mmio +kmod-rt2x00-lib
+  HIDDEN:=1
   TITLE+= (PCI)
   FILES:= $(PKG_BUILD_DIR)/drivers/net/wireless/rt2x00/rt2x00pci.ko
   AUTOLOAD:=$(call AutoProbe,rt2x00pci)
@@ -255,6 +257,7 @@ endef
 define KernelPackage/rt2x00-usb
 $(call KernelPackage/rt2x00/Default)
   DEPENDS+= @USB_SUPPORT +kmod-rt2x00-lib +kmod-usb-core
+  HIDDEN:=1
   TITLE+= (USB)
   FILES:=$(PKG_BUILD_DIR)/drivers/net/wireless/rt2x00/rt2x00usb.ko
   AUTOLOAD:=$(call AutoProbe,rt2x00usb)
@@ -263,6 +266,7 @@ endef
 define KernelPackage/rt2x00-soc
 $(call KernelPackage/rt2x00/Default)
   DEPENDS+=@TARGET_ramips_rt305x +kmod-rt2x00-mmio +kmod-rt2x00-lib
+  HIDDEN:=1
   TITLE+= (SoC)
   FILES:=$(PKG_BUILD_DIR)/drivers/net/wireless/rt2x00/rt2x00soc.ko
   AUTOLOAD:=$(call AutoProbe,rt2x00soc)
@@ -271,6 +275,7 @@ endef
 define KernelPackage/rt2800-lib
 $(call KernelPackage/rt2x00/Default)
   DEPENDS+= @(PCI_SUPPORT||USB_SUPPORT||TARGET_ramips) +kmod-rt2x00-lib +kmod-lib-crc-ccitt +@DRIVER_11N_SUPPORT
+  HIDDEN:=1
   TITLE+= (rt2800 LIB)
   FILES:=$(PKG_BUILD_DIR)/drivers/net/wireless/rt2x00/rt2800lib.ko
 endef
@@ -911,7 +916,7 @@ define KernelPackage/wl12xx
   $(call KernelPackage/mac80211/Default)
   TITLE:=Driver for TI WL12xx
   URL:=http://wireless.kernel.org/en/users/Drivers/wl12xx
-  DEPENDS+= @TARGET_omap4 +kmod-mac80211
+  DEPENDS+= @TARGET_omap +kmod-mac80211
   FILES:= \
 	$(PKG_BUILD_DIR)/drivers/net/wireless/ti/wl12xx/wl12xx.ko \
 	$(PKG_BUILD_DIR)/drivers/net/wireless/ti/wlcore/wlcore.ko \

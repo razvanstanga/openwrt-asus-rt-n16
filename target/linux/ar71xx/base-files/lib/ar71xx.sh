@@ -103,6 +103,9 @@ tplink_board_detect() {
 	"074300"*)
 		model="TP-Link TL-WR743N/ND"
 		;;
+	"075000"*)
+		model="TP-Link TL-WA750RE"
+		;;
 	"080100"*)
 		model="TP-Link TL-WA801N/ND"
 		;;
@@ -114,6 +117,9 @@ tplink_board_detect() {
 		;;
 	"084200"*)
 		model="TP-Link TL-WR842N/ND"
+		;;
+	"085000"*)
+		model="TP-Link TL-WA850RE"
 		;;
 	"090100"*)
 		model="TP-Link TL-WA901N/ND"
@@ -306,6 +312,9 @@ ar71xx_board_detect() {
 	*"My Net N600")
 		name="mynet-n600"
 		;;
+	*"WD My Net Wi-Fi Range Extender")
+		name="mynet-rext"
+		;;
 	*MZK-W04NU)
 		name="mzk-w04nu"
 		;;
@@ -441,8 +450,14 @@ ar71xx_board_detect() {
 	*"TL-MR3420 v2")
 		name="tl-mr3420-v2"
 		;;
+	*TL-WA750RE)
+		name="tl-wa750re"
+		;;
 	*TL-WA7510N)
 		name="tl-wa7510n"
+		;;
+	*TL-WA850RE)
+		name="tl-wa850re"
 		;;
 	*TL-WA901ND)
 		name="tl-wa901nd"
@@ -572,6 +587,12 @@ ar71xx_board_detect() {
 		;;
 	"8devices Carambola2"*)
 		name="carambola2"
+		;;
+	*"Sitecom WLR-8100")
+		name="wlr8100"
+		;;
+	*"BHU BXU2000n-2 rev. A1")
+		name="bxu2000n-2-a1"
 		;;
 	esac
 
