@@ -1,13 +1,14 @@
 diff --git a/tools/firmware-utils/src/trx.c b/tools/firmware-utils/src/trx.c
-index 8e95d98..76e47e8 100644
+index aa1f5be..1e85ff5 100644
 --- a/tools/firmware-utils/src/trx.c
 +++ b/tools/firmware-utils/src/trx.c
 @@ -67,7 +67,7 @@ uint32_t crc32buf(char *buf, size_t len);
  /* from trxhdr.h */
- 
- #define TRX_MAGIC	0x30524448	/* "HDR0" */
--#define TRX_MAX_LEN	0x720000
-+#define TRX_MAX_LEN	0x920000
- #define TRX_NO_HEADER	1		/* Do not write TRX header */	
- 
+
+ #define TRX_MAGIC      0x30524448      /* "HDR0" */
+-#define TRX_MAX_LEN    0x720000
++#define TRX_MAX_LEN    0x920000
+ #define TRX_NO_HEADER  1               /* Do not write TRX header */
+
  struct trx_header {
+

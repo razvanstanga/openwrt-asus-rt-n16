@@ -1,5 +1,8 @@
 cp ./razvi/feeds.conf.default ./
 
+git remote update
+git pull origin master
+
 # update packages
 ./scripts/feeds update packages
 ./scripts/feeds install nano
