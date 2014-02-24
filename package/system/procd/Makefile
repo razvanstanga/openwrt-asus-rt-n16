@@ -1,14 +1,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=procd
-PKG_VERSION:=2013-11-08
+PKG_VERSION:=2014-02-17
 
-PKG_RELEASE=$(PKG_SOURCE_VERSION)-1
+PKG_RELEASE=$(PKG_SOURCE_VERSION)
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=git://nbd.name/luci2/procd.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=315f04d8b823adda96041c17f6672b7790376ccb
+PKG_SOURCE_VERSION:=3a225cfa1782763980c86e9811c683ade33012cc
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 CMAKE_INSTALL:=1
 
@@ -25,19 +25,17 @@ TARGET_LDFLAGS += $(if $(CONFIG_USE_EGLIBC),-lrt)
 define Package/procd
   SECTION:=base
   CATEGORY:=Base system
-  DEPENDS:=+ubusd +ubus +libjson-script +ubox +USE_EGLIBC:librt
+  DEPENDS:=+ubusd +ubus +libjson-script +ubox +USE_EGLIBC:librt +libubox
   TITLE:=OpenWrt system process manager
 endef
 
 define Package/procd/install
-	$(INSTALL_DIR) $(1)/sbin $(1)/lib/functions $(1)/etc/init.d
+	$(INSTALL_DIR) $(1)/sbin  $(1)/etc $(1)/lib/functions
 
-	$(CP) $(PKG_INSTALL_DIR)/usr/sbin/{procd,askfirst,udevtrigger,logread} $(1)/sbin/
+	$(CP) $(PKG_INSTALL_DIR)/usr/sbin/{init,procd,askfirst,udevtrigger} $(1)/sbin/
 	$(INSTALL_BIN) ./files/reload_config $(1)/sbin/
-	$(INSTALL_BIN) ./files/log.init $(1)/etc/init.d/log
 	$(INSTALL_DATA) ./files/hotplug*.json $(1)/etc/
 	$(INSTALL_DATA) ./files/procd.sh $(1)/lib/functions/
-	ln -s /sbin/procd $(1)/sbin/init
 endef
 
 $(eval $(call BuildPackage,procd))

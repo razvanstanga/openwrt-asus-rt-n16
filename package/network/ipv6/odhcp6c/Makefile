@@ -8,24 +8,35 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=odhcp6c
-PKG_VERSION:=2013-10-29
+PKG_VERSION:=2014-02-17
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE_URL:=git://github.com/sbyx/odhcp6c.git
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=60c9e4d5a26f530e89ed6254e8c09380b50fac08
+PKG_SOURCE_VERSION:=53db18b200aa7d5d065e8cc8f2672f077d6d324b
 PKG_MAINTAINER:=Steven Barth <steven@midlink.org>
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
+
+ifneq ($(CONFIG_PACKAGE_odhcp6c_ext_prefix_class),0)
+  CMAKE_OPTIONS += -DEXT_PREFIX_CLASS=$(CONFIG_PACKAGE_odhcp6c_ext_prefix_class)
+endif
 
 define Package/odhcp6c
   SECTION:=net
   CATEGORY:=Network
   TITLE:=Embedded DHCPv6-client for OpenWrt
   DEPENDS:=+kmod-ipv6
+endef
+
+define Package/odhcp6c/config
+  config PACKAGE_odhcp6c_ext_prefix_class
+    int "Prefix Class Extension ID (0 = disabled)"
+    depends on PACKAGE_odhcp6c
+    default 0
 endef
 
 define Package/odhcp6c/install

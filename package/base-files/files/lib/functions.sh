@@ -257,7 +257,27 @@ mtd_get_mac_ascii()
 	mac_dirty=$(strings "$part" | sed -n 's/^'"$key"'=//p')
 
 	# "canonicalize" mac
-	[ -n "$mac_dirty" ] && echo ${mac_dirty} | tr [A-F] [a-f]
+	[ -n "$mac_dirty" ] && macaddr_canonicalize "$mac_dirty"
+}
+
+mtd_get_blob()
+{
+	local mtdname="$1"
+	local offset="$2"
+	local count="$3"
+	local firmware="$4"
+	local part
+
+	part=$(find_mtd_part "$mtdname")
+	if [ -z "$part" ]; then
+		echo "mtd_get_blob: partition $mtdname not found!" >&2
+		return 1
+	fi
+
+	dd if=$part of=$firmware bs=1 skip=$offset count=$count 2>/dev/null || {
+		echo "mtd_get_blob: failed to extract $firmware from $part" >&2
+		return 1
+	}
 }
 
 mtd_get_mac_binary() {
@@ -308,6 +328,39 @@ macaddr_2bin()
 	local mac=$1
 
 	echo -ne \\x${mac//:/\\x}
+}
+
+macaddr_canonicalize()
+{
+	local mac="$1"
+	local canon=""
+
+	[ ${#mac} -gt 17 ] && return
+	[ -n "${mac//[a-fA-F0-9\.: -]/}" ] && return
+
+	for octet in ${mac//[\.:-]/ }; do
+		case "${#octet}" in
+		1)
+			octet="0${octet}"
+			;;
+		2)
+			;;
+		4)
+			octet="${octet:0:2} ${octet:2:2}"
+			;;
+		12)
+			octet="${octet:0:2} ${octet:2:2} ${octet:4:2} ${octet:6:2} ${octet:8:2} ${octet:10:2}"
+			;;
+		*)
+			return
+			;;
+		esac
+		canon=${canon}${canon:+ }${octet}
+	done
+
+	[ ${#canon} -ne 17 ] && return
+
+	printf "%02x:%02x:%02x:%02x:%02x:%02x" 0x${canon// / 0x} 2>/dev/null
 }
 
 strtok() { # <string> { <variable> [<separator>] ... }
@@ -515,12 +568,12 @@ dupe() { # <new_root> <old_root>
 }
 
 pivot() { # <new_root> <old_root>
-	mount -o noatime,move /proc $1/proc && \
+	/bin/mount -o noatime,move /proc $1/proc && \
 	pivot_root $1 $1$2 && {
-		mount -o noatime,move $2/dev /dev
-		mount -o noatime,move $2/tmp /tmp
-		mount -o noatime,move $2/sys /sys 2>&-
-		mount -o noatime,move $2/overlay /overlay 2>&-
+		/bin/mount -o noatime,move $2/dev /dev
+		/bin/mount -o noatime,move $2/tmp /tmp
+		/bin/mount -o noatime,move $2/sys /sys 2>&-
+		/bin/mount -o noatime,move $2/overlay /overlay 2>&-
 		return 0
 	}
 }
@@ -529,16 +582,16 @@ fopivot() { # <rw_root> <ro_root> <dupe?>
 	root=$1
 	{
 		if grep -q overlay /proc/filesystems; then
-			mount -o noatime,lowerdir=/,upperdir=$1 -t overlayfs "overlayfs:$1" /mnt && root=/mnt
+			/bin/mount -o noatime,lowerdir=/,upperdir=$1 -t overlayfs "overlayfs:$1" /mnt && root=/mnt
 		elif grep -q mini_fo /proc/filesystems; then
-			mount -t mini_fo -o noatime,base=/,sto=$1 "mini_fo:$1" /mnt 2>&- && root=/mnt
+			/bin/mount -t mini_fo -o noatime,base=/,sto=$1 "mini_fo:$1" /mnt 2>&- && root=/mnt
 		else
-			mount --bind -o noatime / /mnt
-			mount --bind -o noatime,union "$1" /mnt && root=/mnt
+			/bin/mount --bind -o noatime / /mnt
+			/bin/mount --bind -o noatime,union "$1" /mnt && root=/mnt
 		fi
 	} || {
 		[ "$3" = "1" ] && {
-		mount | grep "on $1 type" 2>&- 1>&- || mount -o noatime,bind $1 $1
+		/bin/mount | grep "on $1 type" 2>&- 1>&- || /bin/mount -o noatime,bind $1 $1
 		dupe $1 $rom
 		}
 	}
@@ -547,7 +600,7 @@ fopivot() { # <rw_root> <ro_root> <dupe?>
 
 ramoverlay() {
 	mkdir -p /tmp/root
-	mount -t tmpfs -o noatime,mode=0755 root /tmp/root
+	/bin/mount -t tmpfs -o noatime,mode=0755 root /tmp/root
 	fopivot /tmp/root /rom 1
 }
 

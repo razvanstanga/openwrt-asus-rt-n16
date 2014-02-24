@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=u-boot
-PKG_VERSION:=2013.07
+PKG_VERSION:=2013.10
 PKG_RELEASE:=1
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
@@ -27,7 +27,7 @@ define uboot/Default
 endef
 
 define uboot/mx23_olinuxino
-  TITLE:=U-Boot 2013.07 for the Olinuxino i.MX233
+  TITLE:=U-Boot 2013.10 for the Olinuxino i.MX233
 endef
 
 UBOOTS := \

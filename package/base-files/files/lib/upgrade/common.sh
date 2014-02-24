@@ -34,26 +34,26 @@ install_bin() { # <file> [ <symlink> ... ]
 }
 
 supivot() { # <new_root> <old_root>
-	mount | grep "on $1 type" 2>&- 1>&- || mount -o bind $1 $1
+	/bin/mount | grep "on $1 type" 2>&- 1>&- || /bin/mount -o bind $1 $1
 	mkdir -p $1$2 $1/proc $1/sys $1/dev $1/tmp $1/overlay && \
-	mount -o noatime,move /proc $1/proc && \
+	/bin/mount -o noatime,move /proc $1/proc && \
 	pivot_root $1 $1$2 || {
-        umount -l $1 $1
+		/bin/umount -l $1 $1
 		return 1
 	}
 
-	mount -o noatime,move $2/sys /sys
-	mount -o noatime,move $2/dev /dev
-	mount -o noatime,move $2/tmp /tmp
-	mount -o noatime,move $2/overlay /overlay 2>&-
+	/bin/mount -o noatime,move $2/sys /sys
+	/bin/mount -o noatime,move $2/dev /dev
+	/bin/mount -o noatime,move $2/tmp /tmp
+	/bin/mount -o noatime,move $2/overlay /overlay 2>&-
 	return 0
 }
 
 run_ramfs() { # <command> [...]
-	install_bin /bin/busybox /bin/ash /bin/sh /bin/mount /bin/umount        \
-		/sbin/pivot_root /usr/bin/wget /sbin/reboot /bin/sync /bin/dd   \
-		/bin/grep /bin/cp /bin/mv /bin/tar /usr/bin/md5sum "/usr/bin/[" \
-		/bin/vi /bin/ls /bin/cat /usr/bin/awk /usr/bin/hexdump          \
+	install_bin /bin/busybox /bin/ash /bin/sh /bin/mount /bin/umount	\
+		/sbin/pivot_root /usr/bin/wget /sbin/reboot /bin/sync /bin/dd	\
+		/bin/grep /bin/cp /bin/mv /bin/tar /usr/bin/md5sum "/usr/bin/["	\
+		/bin/vi /bin/ls /bin/cat /usr/bin/awk /usr/bin/hexdump		\
 		/bin/sleep /bin/zcat /usr/bin/bzcat /usr/bin/printf /usr/bin/wc
 
 	install_bin /sbin/mtd
@@ -67,12 +67,12 @@ run_ramfs() { # <command> [...]
 		exit 1
 	}
 
-	mount -o remount,ro /mnt
-	umount -l /mnt
+	/bin/mount -o remount,ro /mnt
+	/bin/umount -l /mnt
 
 	grep /overlay /proc/mounts > /dev/null && {
-		mount -o noatime,remount,ro /overlay
-		umount -l /overlay
+		/bin/mount -o noatime,remount,ro /overlay
+		/bin/umount -l /overlay
 	}
 
 	# spawn a new shell from ramdisk to reduce the probability of cache issues
@@ -94,7 +94,7 @@ kill_remaining() { # [ <signal> ]
 		local cmdline
 		read cmdline < /proc/$pid/cmdline
 
-		# Skip kernel threads 
+		# Skip kernel threads
 		[ -n "$cmdline" ] || continue
 
 		case "$name" in
@@ -144,7 +144,7 @@ v() {
 }
 
 rootfs_type() {
-	mount | awk '($3 ~ /^\/$/) && ($5 !~ /rootfs/) { print $5 }'
+	/bin/mount | awk '($3 ~ /^\/$/) && ($5 !~ /rootfs/) { print $5 }'
 }
 
 get_image() { # <source> [ <command> ]
@@ -188,7 +188,7 @@ jffs2_copy_config() {
 default_do_upgrade() {
 	sync
 	if [ "$SAVE_CONFIG" -eq 1 ]; then
-		get_image "$1" | mtd -j "$CONF_TAR" write - "${PART_NAME:-image}"
+		get_image "$1" | mtd $MTD_CONFIG_ARGS -j "$CONF_TAR" write - "${PART_NAME:-image}"
 	else
 		get_image "$1" | mtd write - "${PART_NAME:-image}"
 	fi

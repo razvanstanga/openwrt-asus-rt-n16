@@ -8,18 +8,18 @@ menu "Linux System Utilities"
 
 config BUSYBOX_CONFIG_BLOCKDEV
 	bool "blockdev"
-	default n
+	default BUSYBOX_DEFAULT_BLOCKDEV
 	help
 	  Performs some ioctls with block devices.
 config BUSYBOX_CONFIG_REV
 	bool "rev"
-	default n
+	default BUSYBOX_DEFAULT_REV
 	help
 	  Reverse lines of a file or files.
 
 config BUSYBOX_CONFIG_ACPID
 	bool "acpid"
-	default n
+	default BUSYBOX_DEFAULT_ACPID
 	select BUSYBOX_CONFIG_PLATFORM_LINUX
 	help
 	  acpid listens to ACPI events coming either in textual form from
@@ -35,14 +35,14 @@ config BUSYBOX_CONFIG_ACPID
 
 config BUSYBOX_CONFIG_FEATURE_ACPID_COMPAT
 	bool "Accept and ignore redundant options"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_ACPID_COMPAT
 	depends on BUSYBOX_CONFIG_ACPID
 	help
 	  Accept and ignore compatibility options -g -m -s -S -v.
 
 config BUSYBOX_CONFIG_BLKID
 	bool "blkid"
-	default n
+	default BUSYBOX_DEFAULT_BLKID
 	select BUSYBOX_CONFIG_PLATFORM_LINUX
 	select BUSYBOX_CONFIG_VOLUMEID
 	help
@@ -52,14 +52,14 @@ config BUSYBOX_CONFIG_BLKID
 
 config BUSYBOX_CONFIG_FEATURE_BLKID_TYPE
 	bool "Print filesystem type"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_BLKID_TYPE
 	depends on BUSYBOX_CONFIG_BLKID
 	help
 	  Show TYPE="filesystem type"
 
 config BUSYBOX_CONFIG_DMESG
 	bool "dmesg"
-	default y
+	default BUSYBOX_DEFAULT_DMESG
 	select BUSYBOX_CONFIG_PLATFORM_LINUX
 	help
 	  dmesg is used to examine or control the kernel ring buffer. When the
@@ -72,7 +72,7 @@ config BUSYBOX_CONFIG_DMESG
 
 config BUSYBOX_CONFIG_FEATURE_DMESG_PRETTY
 	bool "Pretty dmesg output"
-	default y
+	default BUSYBOX_DEFAULT_FEATURE_DMESG_PRETTY
 	depends on BUSYBOX_CONFIG_DMESG
 	help
 	  If you wish to scrub the syslog level from the output, say 'Y' here.
@@ -93,7 +93,7 @@ config BUSYBOX_CONFIG_FEATURE_DMESG_PRETTY
 
 config BUSYBOX_CONFIG_FBSET
 	bool "fbset"
-	default n
+	default BUSYBOX_DEFAULT_FBSET
 	select BUSYBOX_CONFIG_PLATFORM_LINUX
 	help
 	  fbset is used to show or change the settings of a Linux frame buffer
@@ -103,7 +103,7 @@ config BUSYBOX_CONFIG_FBSET
 
 config BUSYBOX_CONFIG_FEATURE_FBSET_FANCY
 	bool "Turn on extra fbset options"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_FBSET_FANCY
 	depends on BUSYBOX_CONFIG_FBSET
 	help
 	  This option enables extended fbset options, allowing one to set the
@@ -113,16 +113,16 @@ config BUSYBOX_CONFIG_FEATURE_FBSET_FANCY
 
 config BUSYBOX_CONFIG_FEATURE_FBSET_READMODE
 	bool "Turn on fbset readmode support"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_FBSET_READMODE
 	depends on BUSYBOX_CONFIG_FBSET
 	help
 	  This option allows fbset to read the video mode database stored by
-	  default n /etc/fb.modes, which can be used to set frame buffer
+	  default BUSYBOX_DEFAULT_FEATURE_FBSET_READMODE /etc/fb.modes, which can be used to set frame buffer
 	  device to pre-defined video modes.
 
 config BUSYBOX_CONFIG_FDFLUSH
 	bool "fdflush"
-	default n
+	default BUSYBOX_DEFAULT_FDFLUSH
 	select BUSYBOX_CONFIG_PLATFORM_LINUX
 	help
 	  fdflush is only needed when changing media on slightly-broken
@@ -135,14 +135,14 @@ config BUSYBOX_CONFIG_FDFLUSH
 
 config BUSYBOX_CONFIG_FDFORMAT
 	bool "fdformat"
-	default n
+	default BUSYBOX_DEFAULT_FDFORMAT
 	select BUSYBOX_CONFIG_PLATFORM_LINUX
 	help
 	  fdformat is used to low-level format a floppy disk.
 
 config BUSYBOX_CONFIG_FDISK
 	bool "fdisk"
-	default n
+	default BUSYBOX_DEFAULT_FDISK
 	select BUSYBOX_CONFIG_PLATFORM_LINUX
 	help
 	  The fdisk utility is used to divide hard disks into one or more
@@ -152,7 +152,7 @@ config BUSYBOX_CONFIG_FDISK
 
 config BUSYBOX_CONFIG_FDISK_SUPPORT_LARGE_DISKS
 	bool "Support over 4GB disks"
-	default y
+	default BUSYBOX_DEFAULT_FDISK_SUPPORT_LARGE_DISKS
 	depends on BUSYBOX_CONFIG_FDISK
 	depends on !BUSYBOX_CONFIG_LFS   # with LFS no special code is needed
 	help
@@ -160,7 +160,7 @@ config BUSYBOX_CONFIG_FDISK_SUPPORT_LARGE_DISKS
 
 config BUSYBOX_CONFIG_FEATURE_FDISK_WRITABLE
 	bool "Write support"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_FDISK_WRITABLE
 	depends on BUSYBOX_CONFIG_FDISK
 	help
 	  Enabling this option allows you to create or change a partition table
@@ -169,7 +169,7 @@ config BUSYBOX_CONFIG_FEATURE_FDISK_WRITABLE
 
 config BUSYBOX_CONFIG_FEATURE_AIX_LABEL
 	bool "Support AIX disklabels"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_AIX_LABEL
 	depends on BUSYBOX_CONFIG_FDISK && BUSYBOX_CONFIG_FEATURE_FDISK_WRITABLE
 	help
 	  Enabling this option allows you to create or change AIX disklabels.
@@ -177,7 +177,7 @@ config BUSYBOX_CONFIG_FEATURE_AIX_LABEL
 
 config BUSYBOX_CONFIG_FEATURE_SGI_LABEL
 	bool "Support SGI disklabels"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_SGI_LABEL
 	depends on BUSYBOX_CONFIG_FDISK && BUSYBOX_CONFIG_FEATURE_FDISK_WRITABLE
 	help
 	  Enabling this option allows you to create or change SGI disklabels.
@@ -185,7 +185,7 @@ config BUSYBOX_CONFIG_FEATURE_SGI_LABEL
 
 config BUSYBOX_CONFIG_FEATURE_SUN_LABEL
 	bool "Support SUN disklabels"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_SUN_LABEL
 	depends on BUSYBOX_CONFIG_FDISK && BUSYBOX_CONFIG_FEATURE_FDISK_WRITABLE
 	help
 	  Enabling this option allows you to create or change SUN disklabels.
@@ -193,7 +193,7 @@ config BUSYBOX_CONFIG_FEATURE_SUN_LABEL
 
 config BUSYBOX_CONFIG_FEATURE_OSF_LABEL
 	bool "Support BSD disklabels"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_OSF_LABEL
 	depends on BUSYBOX_CONFIG_FDISK && BUSYBOX_CONFIG_FEATURE_FDISK_WRITABLE
 	help
 	  Enabling this option allows you to create or change BSD disklabels
@@ -201,7 +201,7 @@ config BUSYBOX_CONFIG_FEATURE_OSF_LABEL
 
 config BUSYBOX_CONFIG_FEATURE_GPT_LABEL
 	bool "Support GPT disklabels"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_GPT_LABEL
 	depends on BUSYBOX_CONFIG_FDISK && BUSYBOX_CONFIG_FEATURE_FDISK_WRITABLE
 	help
 	  Enabling this option allows you to view GUID Partition Table
@@ -209,7 +209,7 @@ config BUSYBOX_CONFIG_FEATURE_GPT_LABEL
 
 config BUSYBOX_CONFIG_FEATURE_FDISK_ADVANCED
 	bool "Support expert mode"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_FDISK_ADVANCED
 	depends on BUSYBOX_CONFIG_FDISK && BUSYBOX_CONFIG_FEATURE_FDISK_WRITABLE
 	help
 	  Enabling this option allows you to do terribly unsafe things like
@@ -219,7 +219,7 @@ config BUSYBOX_CONFIG_FEATURE_FDISK_ADVANCED
 
 config BUSYBOX_CONFIG_FINDFS
 	bool "findfs"
-	default n
+	default BUSYBOX_DEFAULT_FINDFS
 	select BUSYBOX_CONFIG_PLATFORM_LINUX
 	select BUSYBOX_CONFIG_VOLUMEID
 	help
@@ -229,13 +229,13 @@ config BUSYBOX_CONFIG_FINDFS
 
 config BUSYBOX_CONFIG_FLOCK
 	bool "flock"
-	default n
+	default BUSYBOX_DEFAULT_FLOCK
 	help
 	  Manage locks from shell scripts
 
 config BUSYBOX_CONFIG_FREERAMDISK
 	bool "freeramdisk"
-	default n
+	default BUSYBOX_DEFAULT_FREERAMDISK
 	select BUSYBOX_CONFIG_PLATFORM_LINUX
 	help
 	  Linux allows you to create ramdisks. This utility allows you to
@@ -247,7 +247,7 @@ config BUSYBOX_CONFIG_FREERAMDISK
 
 config BUSYBOX_CONFIG_FSCK_MINIX
 	bool "fsck_minix"
-	default n
+	default BUSYBOX_DEFAULT_FSCK_MINIX
 	help
 	  The minix filesystem is a nice, small, compact, read-write filesystem
 	  with little overhead. It is not a journaling filesystem however and
@@ -258,14 +258,14 @@ config BUSYBOX_CONFIG_FSCK_MINIX
 
 config BUSYBOX_CONFIG_MKFS_EXT2
 	bool "mkfs_ext2"
-	default n
+	default BUSYBOX_DEFAULT_MKFS_EXT2
 	select BUSYBOX_CONFIG_PLATFORM_LINUX
 	help
 	  Utility to create EXT2 filesystems.
 
 config BUSYBOX_CONFIG_MKFS_MINIX
 	bool "mkfs_minix"
-	default n
+	default BUSYBOX_DEFAULT_MKFS_MINIX
 	select BUSYBOX_CONFIG_PLATFORM_LINUX
 	help
 	  The minix filesystem is a nice, small, compact, read-write filesystem
@@ -274,7 +274,7 @@ config BUSYBOX_CONFIG_MKFS_MINIX
 
 config BUSYBOX_CONFIG_FEATURE_MINIX2
 	bool "Support Minix fs v2 (fsck_minix/mkfs_minix)"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_MINIX2
 	depends on BUSYBOX_CONFIG_FSCK_MINIX || BUSYBOX_CONFIG_MKFS_MINIX
 	help
 	  If you wish to be able to create version 2 minix filesystems, enable
@@ -283,7 +283,7 @@ config BUSYBOX_CONFIG_FEATURE_MINIX2
 
 config BUSYBOX_CONFIG_MKFS_REISER
 	bool "mkfs_reiser"
-	default n
+	default BUSYBOX_DEFAULT_MKFS_REISER
 	select BUSYBOX_CONFIG_PLATFORM_LINUX
 	help
 	  Utility to create ReiserFS filesystems.
@@ -291,14 +291,14 @@ config BUSYBOX_CONFIG_MKFS_REISER
 
 config BUSYBOX_CONFIG_MKFS_VFAT
 	bool "mkfs_vfat"
-	default n
+	default BUSYBOX_DEFAULT_MKFS_VFAT
 	select BUSYBOX_CONFIG_PLATFORM_LINUX
 	help
 	  Utility to create FAT32 filesystems.
 
 config BUSYBOX_CONFIG_GETOPT
 	bool "getopt"
-	default n
+	default BUSYBOX_DEFAULT_GETOPT
 	help
 	  The getopt utility is used to break up (parse) options in command
 	  lines to make it easy to write complex shell scripts that also check
@@ -309,21 +309,21 @@ config BUSYBOX_CONFIG_GETOPT
 
 config BUSYBOX_CONFIG_FEATURE_GETOPT_LONG
 	bool "Support option -l"
-	default n if BUSYBOX_CONFIG_LONG_OPTS
+	default BUSYBOX_DEFAULT_FEATURE_GETOPT_LONG if BUSYBOX_CONFIG_LONG_OPTS
 	depends on BUSYBOX_CONFIG_GETOPT
 	help
 	  Enable support for long options (option -l).
 
 config BUSYBOX_CONFIG_HEXDUMP
 	bool "hexdump"
-	default y
+	default BUSYBOX_DEFAULT_HEXDUMP
 	help
 	  The hexdump utility is used to display binary data in a readable
 	  way that is comparable to the output from most hex editors.
 
 config BUSYBOX_CONFIG_FEATURE_HEXDUMP_REVERSE
 	bool "Support -R, reverse of 'hexdump -Cv'"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_HEXDUMP_REVERSE
 	depends on BUSYBOX_CONFIG_HEXDUMP
 	help
 	  The hexdump utility is used to display binary data in an ascii
@@ -333,14 +333,14 @@ config BUSYBOX_CONFIG_FEATURE_HEXDUMP_REVERSE
 
 config BUSYBOX_CONFIG_HD
 	bool "hd"
-	default n
+	default BUSYBOX_DEFAULT_HD
 	depends on BUSYBOX_CONFIG_HEXDUMP
 	help
 	  hd is an alias to hexdump -C.
 
 config BUSYBOX_CONFIG_HWCLOCK
 	bool "hwclock"
-	default y
+	default BUSYBOX_DEFAULT_HWCLOCK
 	select BUSYBOX_CONFIG_PLATFORM_LINUX
 	help
 	  The hwclock utility is used to read and set the hardware clock
@@ -350,7 +350,7 @@ config BUSYBOX_CONFIG_HWCLOCK
 
 config BUSYBOX_CONFIG_FEATURE_HWCLOCK_LONG_OPTIONS
 	bool "Support long options (--hctosys,...)"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_HWCLOCK_LONG_OPTIONS
 	depends on BUSYBOX_CONFIG_HWCLOCK && BUSYBOX_CONFIG_LONG_OPTS
 	help
 	  By default, the hwclock utility only uses short options. If you
@@ -359,7 +359,7 @@ config BUSYBOX_CONFIG_FEATURE_HWCLOCK_LONG_OPTIONS
 
 config BUSYBOX_CONFIG_FEATURE_HWCLOCK_ADJTIME_FHS
 	bool "Use FHS /var/lib/hwclock/adjtime"
-	default n  # util-linux-ng in Fedora 13 still uses /etc/adjtime
+	default BUSYBOX_DEFAULT_FEATURE_HWCLOCK_ADJTIME_FHS  # util-linux-ng in Fedora 13 still uses /etc/adjtime
 	depends on BUSYBOX_CONFIG_HWCLOCK
 	help
 	  Starting with FHS 2.3, the adjtime state file is supposed to exist
@@ -371,7 +371,7 @@ config BUSYBOX_CONFIG_FEATURE_HWCLOCK_ADJTIME_FHS
 
 config BUSYBOX_CONFIG_IPCRM
 	bool "ipcrm"
-	default n
+	default BUSYBOX_DEFAULT_IPCRM
 	help
 	  The ipcrm utility allows the removal of System V interprocess
 	  communication (IPC) objects and the associated data structures
@@ -379,7 +379,7 @@ config BUSYBOX_CONFIG_IPCRM
 
 config BUSYBOX_CONFIG_IPCS
 	bool "ipcs"
-	default n
+	default BUSYBOX_DEFAULT_IPCS
 	select BUSYBOX_CONFIG_PLATFORM_LINUX
 	help
 	  The ipcs utility is used to provide information on the currently
@@ -387,7 +387,7 @@ config BUSYBOX_CONFIG_IPCS
 
 config BUSYBOX_CONFIG_LOSETUP
 	bool "losetup"
-	default n
+	default BUSYBOX_DEFAULT_LOSETUP
 	select BUSYBOX_CONFIG_PLATFORM_LINUX
 	help
 	  losetup is used to associate or detach a loop device with a regular
@@ -396,7 +396,7 @@ config BUSYBOX_CONFIG_LOSETUP
 
 config BUSYBOX_CONFIG_LSPCI
 	bool "lspci"
-	default n
+	default BUSYBOX_DEFAULT_LSPCI
 	#select PLATFORM_LINUX
 	help
 	  lspci is a utility for displaying information about PCI buses in the
@@ -406,7 +406,7 @@ config BUSYBOX_CONFIG_LSPCI
 
 config BUSYBOX_CONFIG_LSUSB
 	bool "lsusb"
-	default n
+	default BUSYBOX_DEFAULT_LSUSB
 	#select PLATFORM_LINUX
 	help
 	  lsusb is a utility for displaying information about USB buses in the
@@ -416,7 +416,7 @@ config BUSYBOX_CONFIG_LSUSB
 
 config BUSYBOX_CONFIG_MDEV
 	bool "mdev"
-	default n
+	default BUSYBOX_DEFAULT_MDEV
 	select BUSYBOX_CONFIG_PLATFORM_LINUX
 	help
 	  mdev is a mini-udev implementation for dynamically creating device
@@ -426,7 +426,7 @@ config BUSYBOX_CONFIG_MDEV
 
 config BUSYBOX_CONFIG_FEATURE_MDEV_CONF
 	bool "Support /etc/mdev.conf"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_MDEV_CONF
 	depends on BUSYBOX_CONFIG_MDEV
 	help
 	  Add support for the mdev config file to control ownership and
@@ -436,7 +436,7 @@ config BUSYBOX_CONFIG_FEATURE_MDEV_CONF
 
 config BUSYBOX_CONFIG_FEATURE_MDEV_RENAME
 	bool "Support subdirs/symlinks"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_MDEV_RENAME
 	depends on BUSYBOX_CONFIG_FEATURE_MDEV_CONF
 	help
 	  Add support for renaming devices and creating symlinks.
@@ -445,7 +445,7 @@ config BUSYBOX_CONFIG_FEATURE_MDEV_RENAME
 
 config BUSYBOX_CONFIG_FEATURE_MDEV_RENAME_REGEXP
 	bool "Support regular expressions substitutions when renaming device"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_MDEV_RENAME_REGEXP
 	depends on BUSYBOX_CONFIG_FEATURE_MDEV_RENAME
 	help
 	  Add support for regular expressions substitutions when renaming
@@ -453,7 +453,7 @@ config BUSYBOX_CONFIG_FEATURE_MDEV_RENAME_REGEXP
 
 config BUSYBOX_CONFIG_FEATURE_MDEV_EXEC
 	bool "Support command execution at device addition/removal"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_MDEV_EXEC
 	depends on BUSYBOX_CONFIG_FEATURE_MDEV_CONF
 	help
 	  This adds support for an optional field to /etc/mdev.conf for
@@ -463,7 +463,7 @@ config BUSYBOX_CONFIG_FEATURE_MDEV_EXEC
 
 config BUSYBOX_CONFIG_FEATURE_MDEV_LOAD_FIRMWARE
 	bool "Support loading of firmwares"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_MDEV_LOAD_FIRMWARE
 	depends on BUSYBOX_CONFIG_MDEV
 	help
 	  Some devices need to load firmware before they can be usable.
@@ -474,7 +474,7 @@ config BUSYBOX_CONFIG_FEATURE_MDEV_LOAD_FIRMWARE
 
 config BUSYBOX_CONFIG_MKSWAP
 	bool "mkswap"
-	default y
+	default BUSYBOX_DEFAULT_MKSWAP
 	help
 	  The mkswap utility is used to configure a file or disk partition as
 	  Linux swap space. This allows Linux to use the entire file or
@@ -487,14 +487,14 @@ config BUSYBOX_CONFIG_MKSWAP
 
 config BUSYBOX_CONFIG_FEATURE_MKSWAP_UUID
 	bool "UUID support"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_MKSWAP_UUID
 	depends on BUSYBOX_CONFIG_MKSWAP
 	help
 	  Generate swap spaces with universally unique identifiers.
 
 config BUSYBOX_CONFIG_MORE
 	bool "more"
-	default n
+	default BUSYBOX_DEFAULT_MORE
 	help
 	  more is a simple utility which allows you to read text one screen
 	  sized page at a time. If you want to read text that is larger than
@@ -504,7 +504,7 @@ config BUSYBOX_CONFIG_MORE
 
 config BUSYBOX_CONFIG_MOUNT
 	bool "mount"
-	default y
+	default BUSYBOX_DEFAULT_MOUNT
 	select BUSYBOX_CONFIG_PLATFORM_LINUX
 	help
 	  All files and filesystems in Unix are arranged into one big directory
@@ -516,14 +516,14 @@ config BUSYBOX_CONFIG_MOUNT
 
 config BUSYBOX_CONFIG_FEATURE_MOUNT_FAKE
 	bool "Support option -f"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_MOUNT_FAKE
 	depends on BUSYBOX_CONFIG_MOUNT
 	help
 	  Enable support for faking a file system mount.
 
 config BUSYBOX_CONFIG_FEATURE_MOUNT_VERBOSE
 	bool "Support option -v"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_MOUNT_VERBOSE
 	depends on BUSYBOX_CONFIG_MOUNT
 	help
 	  Enable multi-level -v[vv...] verbose messages. Useful if you
@@ -532,7 +532,7 @@ config BUSYBOX_CONFIG_FEATURE_MOUNT_VERBOSE
 
 config BUSYBOX_CONFIG_FEATURE_MOUNT_HELPERS
 	bool "Support mount helpers"
-	default y
+	default BUSYBOX_DEFAULT_FEATURE_MOUNT_HELPERS
 	depends on BUSYBOX_CONFIG_MOUNT
 	help
 	  Enable mounting of virtual file systems via external helpers.
@@ -544,7 +544,7 @@ config BUSYBOX_CONFIG_FEATURE_MOUNT_HELPERS
 
 config BUSYBOX_CONFIG_FEATURE_MOUNT_LABEL
 	bool "Support specifying devices by label or UUID"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_MOUNT_LABEL
 	depends on BUSYBOX_CONFIG_MOUNT
 	select BUSYBOX_CONFIG_VOLUMEID
 	help
@@ -554,7 +554,7 @@ config BUSYBOX_CONFIG_FEATURE_MOUNT_LABEL
 
 config BUSYBOX_CONFIG_FEATURE_MOUNT_NFS
 	bool "Support mounting NFS file systems"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_MOUNT_NFS
 	depends on BUSYBOX_CONFIG_MOUNT
 	select BUSYBOX_CONFIG_FEATURE_HAVE_RPC
 	select BUSYBOX_CONFIG_FEATURE_SYSLOG
@@ -563,7 +563,7 @@ config BUSYBOX_CONFIG_FEATURE_MOUNT_NFS
 
 config BUSYBOX_CONFIG_FEATURE_MOUNT_CIFS
 	bool "Support mounting CIFS/SMB file systems"
-	default y
+	default BUSYBOX_DEFAULT_FEATURE_MOUNT_CIFS
 	depends on BUSYBOX_CONFIG_MOUNT
 	help
 	  Enable support for samba mounts.
@@ -571,7 +571,7 @@ config BUSYBOX_CONFIG_FEATURE_MOUNT_CIFS
 config BUSYBOX_CONFIG_FEATURE_MOUNT_FLAGS
 	depends on BUSYBOX_CONFIG_MOUNT
 	bool "Support lots of -o flags in mount"
-	default y
+	default BUSYBOX_DEFAULT_FEATURE_MOUNT_FLAGS
 	help
 	  Without this, mount only supports ro/rw/remount. With this, it
 	  supports nosuid, suid, dev, nodev, exec, noexec, sync, async, atime,
@@ -581,13 +581,13 @@ config BUSYBOX_CONFIG_FEATURE_MOUNT_FLAGS
 config BUSYBOX_CONFIG_FEATURE_MOUNT_FSTAB
 	depends on BUSYBOX_CONFIG_MOUNT
 	bool "Support /etc/fstab and -a"
-	default y
+	default BUSYBOX_DEFAULT_FEATURE_MOUNT_FSTAB
 	help
 	  Support mount all and looking for files in /etc/fstab.
 
 config BUSYBOX_CONFIG_PIVOT_ROOT
 	bool "pivot_root"
-	default y
+	default BUSYBOX_DEFAULT_PIVOT_ROOT
 	select BUSYBOX_CONFIG_PLATFORM_LINUX
 	help
 	  The pivot_root utility swaps the mount points for the root filesystem
@@ -600,7 +600,7 @@ config BUSYBOX_CONFIG_PIVOT_ROOT
 
 config BUSYBOX_CONFIG_RDATE
 	bool "rdate"
-	default n
+	default BUSYBOX_DEFAULT_RDATE
 	help
 	  The rdate utility allows you to synchronize the date and time of your
 	  system clock with the date and time of a remote networked system using
@@ -609,40 +609,40 @@ config BUSYBOX_CONFIG_RDATE
 
 config BUSYBOX_CONFIG_RDEV
 	bool "rdev"
-	default n
+	default BUSYBOX_DEFAULT_RDEV
 	help
 	  Print the device node associated with the filesystem mounted at '/'.
 
 config BUSYBOX_CONFIG_READPROFILE
 	bool "readprofile"
-	default n
+	default BUSYBOX_DEFAULT_READPROFILE
 	#select PLATFORM_LINUX
 	help
 	  This allows you to parse /proc/profile for basic profiling.
 
 config BUSYBOX_CONFIG_RTCWAKE
 	bool "rtcwake"
-	default n
+	default BUSYBOX_DEFAULT_RTCWAKE
 	select BUSYBOX_CONFIG_PLATFORM_LINUX
 	help
 	  Enter a system sleep state until specified wakeup time.
 
 config BUSYBOX_CONFIG_SCRIPT
 	bool "script"
-	default n
+	default BUSYBOX_DEFAULT_SCRIPT
 	help
 	  The script makes typescript of terminal session.
 
 config BUSYBOX_CONFIG_SCRIPTREPLAY
 	bool "scriptreplay"
-	default n
+	default BUSYBOX_DEFAULT_SCRIPTREPLAY
 	help
 	  This program replays a typescript, using timing information
 	  given by script -t.
 
 config BUSYBOX_CONFIG_SETARCH
 	bool "setarch"
-	default n
+	default BUSYBOX_DEFAULT_SETARCH
 	select BUSYBOX_CONFIG_PLATFORM_LINUX
 	help
 	  The linux32 utility is used to create a 32bit environment for the
@@ -652,7 +652,7 @@ config BUSYBOX_CONFIG_SETARCH
 
 config BUSYBOX_CONFIG_SWAPONOFF
 	bool "swaponoff"
-	default n
+	default BUSYBOX_DEFAULT_SWAPONOFF
 	select BUSYBOX_CONFIG_PLATFORM_LINUX
 	help
 	  This option enables both the 'swapon' and the 'swapoff' utilities.
@@ -664,14 +664,14 @@ config BUSYBOX_CONFIG_SWAPONOFF
 
 config BUSYBOX_CONFIG_FEATURE_SWAPON_PRI
 	bool "Support priority option -p"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_SWAPON_PRI
 	depends on BUSYBOX_CONFIG_SWAPONOFF
 	help
 	  Enable support for setting swap device priority in swapon.
 
 config BUSYBOX_CONFIG_SWITCH_ROOT
 	bool "switch_root"
-	default y
+	default BUSYBOX_DEFAULT_SWITCH_ROOT
 	select BUSYBOX_CONFIG_PLATFORM_LINUX
 	help
 	  The switch_root utility is used from initramfs to select a new
@@ -691,7 +691,7 @@ config BUSYBOX_CONFIG_SWITCH_ROOT
 
 config BUSYBOX_CONFIG_UMOUNT
 	bool "umount"
-	default y
+	default BUSYBOX_DEFAULT_UMOUNT
 	select BUSYBOX_CONFIG_PLATFORM_LINUX
 	help
 	  When you want to remove a mounted filesystem from its current mount
@@ -701,7 +701,7 @@ config BUSYBOX_CONFIG_UMOUNT
 
 config BUSYBOX_CONFIG_FEATURE_UMOUNT_ALL
 	bool "Support option -a"
-	default y
+	default BUSYBOX_DEFAULT_FEATURE_UMOUNT_ALL
 	depends on BUSYBOX_CONFIG_UMOUNT
 	help
 	  Support -a option to unmount all currently mounted filesystems.
@@ -711,7 +711,7 @@ comment "Common options for mount/umount"
 
 config BUSYBOX_CONFIG_FEATURE_MOUNT_LOOP
 	bool "Support loopback mounts"
-	default y
+	default BUSYBOX_DEFAULT_FEATURE_MOUNT_LOOP
 	depends on BUSYBOX_CONFIG_MOUNT || BUSYBOX_CONFIG_UMOUNT
 	help
 	  Enabling this feature allows automatic mounting of files (containing
@@ -728,7 +728,7 @@ config BUSYBOX_CONFIG_FEATURE_MOUNT_LOOP
 
 config BUSYBOX_CONFIG_FEATURE_MOUNT_LOOP_CREATE
 	bool "Create new loopback devices if needed"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_MOUNT_LOOP_CREATE
 	depends on BUSYBOX_CONFIG_FEATURE_MOUNT_LOOP
 	help
 	  Linux kernels >= 2.6.24 support unlimited loopback devices. They are
@@ -740,7 +740,7 @@ config BUSYBOX_CONFIG_FEATURE_MOUNT_LOOP_CREATE
 
 config BUSYBOX_CONFIG_FEATURE_MTAB_SUPPORT
 	bool "Support for the old /etc/mtab file"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_MTAB_SUPPORT
 	depends on BUSYBOX_CONFIG_MOUNT || BUSYBOX_CONFIG_UMOUNT
 	select BUSYBOX_CONFIG_FEATURE_MOUNT_FAKE
 	help
@@ -764,49 +764,49 @@ config BUSYBOX_CONFIG_FEATURE_MTAB_SUPPORT
 
 config BUSYBOX_CONFIG_VOLUMEID
 	bool #No description makes it a hidden option
-	default n
+	default BUSYBOX_DEFAULT_VOLUMEID
 
 menu "Filesystem/Volume identification"
 	depends on BUSYBOX_CONFIG_VOLUMEID
 
 config BUSYBOX_CONFIG_FEATURE_VOLUMEID_EXT
 	bool "Ext filesystem"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_VOLUMEID_EXT
 	depends on BUSYBOX_CONFIG_VOLUMEID
 	help
 	  TODO
 
 config BUSYBOX_CONFIG_FEATURE_VOLUMEID_BTRFS
 	bool "btrfs filesystem"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_VOLUMEID_BTRFS
 	depends on BUSYBOX_CONFIG_VOLUMEID
 	help
 	  TODO
 
 config BUSYBOX_CONFIG_FEATURE_VOLUMEID_REISERFS
 	bool "Reiser filesystem"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_VOLUMEID_REISERFS
 	depends on BUSYBOX_CONFIG_VOLUMEID
 	help
 	  TODO
 
 config BUSYBOX_CONFIG_FEATURE_VOLUMEID_FAT
 	bool "fat filesystem"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_VOLUMEID_FAT
 	depends on BUSYBOX_CONFIG_VOLUMEID
 	help
 	  TODO
 
 config BUSYBOX_CONFIG_FEATURE_VOLUMEID_HFS
 	bool "hfs filesystem"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_VOLUMEID_HFS
 	depends on BUSYBOX_CONFIG_VOLUMEID
 	help
 	  TODO
 
 config BUSYBOX_CONFIG_FEATURE_VOLUMEID_JFS
 	bool "jfs filesystem"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_VOLUMEID_JFS
 	depends on BUSYBOX_CONFIG_VOLUMEID
 	help
 	  TODO
@@ -820,42 +820,42 @@ config BUSYBOX_CONFIG_FEATURE_VOLUMEID_JFS
 
 config BUSYBOX_CONFIG_FEATURE_VOLUMEID_XFS
 	bool "xfs filesystem"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_VOLUMEID_XFS
 	depends on BUSYBOX_CONFIG_VOLUMEID
 	help
 	  TODO
 
 config BUSYBOX_CONFIG_FEATURE_VOLUMEID_NTFS
 	bool "ntfs filesystem"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_VOLUMEID_NTFS
 	depends on BUSYBOX_CONFIG_VOLUMEID
 	help
 	  TODO
 
 config BUSYBOX_CONFIG_FEATURE_VOLUMEID_ISO9660
 	bool "iso9660 filesystem"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_VOLUMEID_ISO9660
 	depends on BUSYBOX_CONFIG_VOLUMEID
 	help
 	  TODO
 
 config BUSYBOX_CONFIG_FEATURE_VOLUMEID_UDF
 	bool "udf filesystem"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_VOLUMEID_UDF
 	depends on BUSYBOX_CONFIG_VOLUMEID
 	help
 	  TODO
 
 config BUSYBOX_CONFIG_FEATURE_VOLUMEID_LUKS
 	bool "luks filesystem"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_VOLUMEID_LUKS
 	depends on BUSYBOX_CONFIG_VOLUMEID
 	help
 	  TODO
 
 config BUSYBOX_CONFIG_FEATURE_VOLUMEID_LINUXSWAP
 	bool "linux swap filesystem"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_VOLUMEID_LINUXSWAP
 	depends on BUSYBOX_CONFIG_VOLUMEID
 	help
 	  TODO
@@ -869,7 +869,7 @@ config BUSYBOX_CONFIG_FEATURE_VOLUMEID_LINUXSWAP
 
 config BUSYBOX_CONFIG_FEATURE_VOLUMEID_CRAMFS
 	bool "cramfs filesystem"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_VOLUMEID_CRAMFS
 	depends on BUSYBOX_CONFIG_VOLUMEID
 	help
 	  TODO
@@ -883,14 +883,14 @@ config BUSYBOX_CONFIG_FEATURE_VOLUMEID_CRAMFS
 
 config BUSYBOX_CONFIG_FEATURE_VOLUMEID_ROMFS
 	bool "romfs filesystem"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_VOLUMEID_ROMFS
 	depends on BUSYBOX_CONFIG_VOLUMEID
 	help
 	  TODO
 
 config BUSYBOX_CONFIG_FEATURE_VOLUMEID_SYSV
 	bool "sysv filesystem"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_VOLUMEID_SYSV
 	depends on BUSYBOX_CONFIG_VOLUMEID
 	help
 	  TODO
@@ -919,7 +919,7 @@ config BUSYBOX_CONFIG_FEATURE_VOLUMEID_SYSV
 
 config BUSYBOX_CONFIG_FEATURE_VOLUMEID_OCFS2
 	bool "ocfs2 filesystem"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_VOLUMEID_OCFS2
 	depends on BUSYBOX_CONFIG_VOLUMEID
 	help
 	  TODO
@@ -975,7 +975,7 @@ config BUSYBOX_CONFIG_FEATURE_VOLUMEID_OCFS2
 
 config BUSYBOX_CONFIG_FEATURE_VOLUMEID_LINUXRAID
 	bool "linuxraid"
-	default n
+	default BUSYBOX_DEFAULT_FEATURE_VOLUMEID_LINUXRAID
 	depends on BUSYBOX_CONFIG_VOLUMEID
 	help
 	  TODO

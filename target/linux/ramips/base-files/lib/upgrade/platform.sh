@@ -48,6 +48,7 @@ platform_check_image() {
 	freestation5 | \
 	hw550-3g | \
 	hg255d | \
+	hlk-rm04 | \
 	ip2202 | \
 	m3 | \
 	m4 | \
@@ -63,6 +64,7 @@ platform_check_image() {
 	rp-n53 | \
 	rt-g32-b1 | \
 	rt-n10-plus | \
+	rt-n14u | \
 	rt-n15 | \
 	rt-n56u | \
 	sl-r7205 | \
@@ -93,6 +95,13 @@ platform_check_image() {
 	dir-610-a1 |\
 	dir-645)
 		[ "$magic" != "5ea3a417" ] && {
+			echo "Invalid image type."
+			return 1
+		}
+		return 0
+		;;
+	br-6475nd)
+		[ "$magic" != "43535953" ] && {
 			echo "Invalid image type."
 			return 1
 		}

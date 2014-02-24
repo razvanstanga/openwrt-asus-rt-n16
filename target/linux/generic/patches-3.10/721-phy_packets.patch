@@ -34,7 +34,7 @@
  #define IF_GET_IFACE	0x0001		/* for querying only */
 --- a/include/linux/skbuff.h
 +++ b/include/linux/skbuff.h
-@@ -1883,6 +1883,10 @@ static inline int pskb_trim(struct sk_bu
+@@ -1879,6 +1879,10 @@ static inline int pskb_trim(struct sk_bu
  	return (len < skb->len) ? __pskb_trim(skb, len) : 0;
  }
  
@@ -45,7 +45,7 @@
  /**
   *	pskb_trim_unique - remove end from a paged unique (not cloned) buffer
   *	@skb: buffer to alter
-@@ -2007,16 +2011,6 @@ static inline struct sk_buff *dev_alloc_
+@@ -2003,16 +2007,6 @@ static inline struct sk_buff *dev_alloc_
  }
  
  
@@ -135,7 +135,7 @@
  
  #include <net/protocol.h>
  #include <net/dst.h>
-@@ -471,6 +472,22 @@ struct sk_buff *__netdev_alloc_skb(struc
+@@ -441,6 +442,22 @@ struct sk_buff *__netdev_alloc_skb(struc
  }
  EXPORT_SYMBOL(__netdev_alloc_skb);
  

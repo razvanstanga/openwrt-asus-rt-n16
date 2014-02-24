@@ -31,7 +31,7 @@
  				    TG3_CPMU_PHY_STRAP_IS_SERDES;
  		if (is_serdes)
  			tp->phy_addr += 7;
-+	} else if (tg3_flag(tp, IS_SSB_CORE)) {
++	} else if (tg3_flag(tp, IS_SSB_CORE) && tg3_flag(tp, ROBOSWITCH)) {
 +		int addr;
 +
 +		addr = ssb_gige_get_phyaddr(tp->pdev);
@@ -174,7 +174,7 @@
  		return phy_mii_ioctl(phydev, ifr, cmd);
  	}
  
-@@ -17190,8 +17197,10 @@ static int tg3_init_one(struct pci_dev *
+@@ -17193,8 +17200,10 @@ static int tg3_init_one(struct pci_dev *
  			tg3_flag_set(tp, FLUSH_POSTED_WRITES);
  		if (ssb_gige_one_dma_at_once(pdev))
  			tg3_flag_set(tp, ONE_DMA_AT_ONCE);
@@ -186,7 +186,7 @@
  		if (ssb_gige_is_rgmii(pdev))
  			tg3_flag_set(tp, RGMII_MODE);
  	}
-@@ -17461,7 +17470,7 @@ static int tg3_init_one(struct pci_dev *
+@@ -17464,7 +17473,7 @@ static int tg3_init_one(struct pci_dev *
  
  	if (tp->phy_flags & TG3_PHYFLG_IS_CONNECTED) {
  		struct phy_device *phydev;
@@ -195,33 +195,3 @@
  		netdev_info(dev,
  			    "attached PHY driver [%s] (mii_bus:phy_addr=%s)\n",
  			    phydev->drv->name, dev_name(&phydev->dev));
---- a/include/linux/ssb/ssb_driver_gige.h
-+++ b/include/linux/ssb/ssb_driver_gige.h
-@@ -108,6 +108,16 @@ static inline int ssb_gige_get_macaddr(s
- 	return 0;
- }
- 
-+/* Get the device phy address */
-+static inline int ssb_gige_get_phyaddr(struct pci_dev *pdev)
-+{
-+	struct ssb_gige *dev = pdev_to_ssb_gige(pdev);
-+	if (!dev)
-+		return -ENODEV;
-+
-+	return dev->dev->bus->sprom.et0phyaddr;
-+}
-+
- extern int ssb_gige_pcibios_plat_dev_init(struct ssb_device *sdev,
- 					  struct pci_dev *pdev);
- extern int ssb_gige_map_irq(struct ssb_device *sdev,
-@@ -174,6 +184,10 @@ static inline int ssb_gige_get_macaddr(s
- {
- 	return -ENODEV;
- }
-+static inline int ssb_gige_get_phyaddr(struct pci_dev *pdev)
-+{
-+	return -ENODEV;
-+}
- 
- #endif /* CONFIG_SSB_DRIVER_GIGE */
- #endif /* LINUX_SSB_DRIVER_GIGE_H_ */

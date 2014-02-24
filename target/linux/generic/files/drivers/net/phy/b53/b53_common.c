@@ -189,7 +189,8 @@ static void b53_set_vlan_entry(struct b53_device *dev, u16 vid, u16 members,
 		u32 entry = 0;
 
 		if (members) {
-			entry = (untag << VA_UNTAG_S) | members;
+			entry = ((untag & VA_UNTAG_MASK_25) << VA_UNTAG_S_25) |
+				members;
 			if (dev->core_rev >= 3)
 				entry |= VA_VALID_25_R4 | vid << VA_VID_HIGH_S;
 			else
@@ -203,7 +204,8 @@ static void b53_set_vlan_entry(struct b53_device *dev, u16 vid, u16 members,
 		u16 entry = 0;
 
 		if (members)
-			entry = (untag << VA_UNTAG_S) | members | VA_VALID_65;
+			entry = ((untag & VA_UNTAG_MASK_65) << VA_UNTAG_S_65) |
+				members | VA_VALID_65;
 
 		b53_write16(dev, B53_VLAN_PAGE, B53_VLAN_WRITE_65, entry);
 		b53_write16(dev, B53_VLAN_PAGE, B53_VLAN_TABLE_ACCESS_65, vid |
@@ -457,7 +459,7 @@ static int b53_apply(struct b53_device *dev)
 	return 0;
 }
 
-void b53_switch_reset_gpio(struct b53_device *dev)
+static void b53_switch_reset_gpio(struct b53_device *dev)
 {
 	int gpio = dev->reset_gpio;
 
@@ -1128,6 +1130,19 @@ static const struct b53_chip_data b53_switch_chips[] = {
 		.sw_ops = &b53_switch_ops,
 	},
 	{
+		.chip_id = BCM53128_DEVICE_ID,
+		.dev_name = "BCM53128",
+		.alias = "bcm53128",
+		.vlans = 4096,
+		.enabled_ports = 0x1ff,
+		.cpu_port = B53_CPU_PORT,
+		.vta_regs = B53_VTA_REGS,
+		.duplex_reg = B53_DUPLEX_STAT_GE,
+		.jumbo_pm_reg = B53_JUMBO_PORT_MASK,
+		.jumbo_size_reg = B53_JUMBO_MAX_SIZE,
+		.sw_ops = &b53_switch_ops,
+	},
+	{
 		.chip_id = BCM63XX_DEVICE_ID,
 		.dev_name = "BCM63xx",
 		.alias = "bcm63xx",
@@ -1207,7 +1222,7 @@ static const struct b53_chip_data b53_switch_chips[] = {
 	},
 };
 
-int b53_switch_init(struct b53_device *dev)
+static int b53_switch_init(struct b53_device *dev)
 {
 	struct switch_dev *sw_dev = &dev->sw_dev;
 	unsigned i;
@@ -1361,6 +1376,7 @@ int b53_switch_detect(struct b53_device *dev)
 		switch (id32) {
 		case BCM53115_DEVICE_ID:
 		case BCM53125_DEVICE_ID:
+		case BCM53128_DEVICE_ID:
 		case BCM53010_DEVICE_ID:
 		case BCM53011_DEVICE_ID:
 		case BCM53012_DEVICE_ID:
